@@ -64,6 +64,18 @@ html, body { height: 100%; margin: 0; }
     <input type="text"   name="bot-field">
   </form>
 
+  <!-- Netlify Form untuk Refleksi -->
+  <form name="refleksi-siswa" data-netlify="true" netlify-honeypot="bot-field" hidden>
+    <input type="hidden" name="form-name" value="refleksi-siswa">
+    <input type="text"   name="nama_siswa">
+    <input type="text"   name="kelas">
+    <textarea            name="refleksi_1"></textarea>
+    <textarea            name="refleksi_2"></textarea>
+    <textarea            name="refleksi_3"></textarea>
+    <input type="text"   name="tanggal_waktu">
+    <input type="text"   name="bot-field">
+  </form>
+
   <div id="app" class="h-full w-full flex flex-col md:flex-row overflow-hidden"><!-- Sidebar Navigation -->
    <nav id="sidebar" class="w-full md:w-64 bg-white shadow-lg md:h-full flex-shrink-0 z-40">
     <div class="p-4 bg-gradient-to-r from-primary-600 to-accent-600 text-white">
@@ -441,12 +453,38 @@ html, body { height: 100%; margin: 0; }
      <div class="bg-white rounded-2xl shadow-md p-6 md:p-8">
       <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-2"><i data-lucide="message-circle" class="w-6 h-6 text-orange-600"></i> Refleksi Pembelajaran</h2>
       <div class="space-y-5">
+       <!-- Identitas Siswa -->
+       <div class="bg-blue-50 rounded-xl p-5">
+        <h3 class="font-bold text-gray-800 mb-4 flex items-center gap-2"><i data-lucide="user" class="w-4 h-4 text-primary-600"></i> Identitas Siswa</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+         <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1" for="refleksiNama">Nama Siswa *</label>
+          <input type="text" id="refleksiNama" class="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:border-primary-500 focus:outline-none" placeholder="Masukkan nama lengkap">
+          <p id="refleksiNamaError" class="text-red-500 text-xs mt-1 hidden">Silakan isi nama terlebih dahulu.</p>
+         </div>
+         <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1" for="refleksiKelas">Kelas *</label>
+          <select id="refleksiKelas" class="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:border-primary-500 focus:outline-none">
+           <option value="">-- Pilih Kelas --</option>
+           <option value="Kelas 7A">Kelas 7A</option>
+           <option value="Kelas 7B">Kelas 7B</option>
+           <option value="Kelas 8A">Kelas 8A</option>
+           <option value="Kelas 8B">Kelas 8B</option>
+           <option value="Kelas 9A">Kelas 9A</option>
+           <option value="Kelas 9B">Kelas 9B</option>
+          </select>
+          <p id="refleksiKelasError" class="text-red-500 text-xs mt-1 hidden">Silakan pilih kelas terlebih dahulu.</p>
+         </div>
+        </div>
+       </div>
+       <!-- Pertanyaan Refleksi -->
        <div class="bg-orange-50 rounded-xl p-5"><label class="block font-bold text-gray-800 mb-2">1. Apa yang sudah saya pahami hari ini?</label> <textarea id="refleksi1" class="w-full px-4 py-3 border-2 border-orange-200 rounded-lg focus:border-orange-400 focus:outline-none resize-none" rows="3" placeholder="Tuliskan pemahaman Anda..."></textarea>
        </div>
        <div class="bg-yellow-50 rounded-xl p-5"><label class="block font-bold text-gray-800 mb-2">2. Materi apa yang masih sulit dipahami?</label> <textarea id="refleksi2" class="w-full px-4 py-3 border-2 border-yellow-200 rounded-lg focus:border-yellow-400 focus:outline-none resize-none" rows="3" placeholder="Tuliskan kesulitan Anda..."></textarea>
        </div>
        <div class="bg-green-50 rounded-xl p-5"><label class="block font-bold text-gray-800 mb-2">3. Bagaimana saya akan menerapkan algoritma dalam kehidupan sehari-hari?</label> <textarea id="refleksi3" class="w-full px-4 py-3 border-2 border-green-200 rounded-lg focus:border-green-400 focus:outline-none resize-none" rows="3" placeholder="Tuliskan rencana penerapan Anda..."></textarea>
-       </div><button onclick="saveRefleksi()" class="px-6 py-3 bg-orange-600 text-white rounded-lg font-medium hover:bg-orange-700 transition">💾 Simpan Refleksi</button>
+       </div>
+       <button onclick="saveRefleksi()" class="px-6 py-3 bg-orange-600 text-white rounded-lg font-medium hover:bg-orange-700 transition">💾 Simpan Refleksi</button>
        <p id="refleksiStatus" class="text-sm font-medium"></p>
       </div>
      </div>
@@ -458,6 +496,12 @@ html, body { height: 100%; margin: 0; }
    </main>
   </div>
   <script>
+// ============================================================
+// KONFIGURASI — Isi URL Apps Script setelah deploy di Google
+// Panduan lengkap: lihat SETUP.md
+// ============================================================
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw5Fxp26RLz1qif2dwH9An8WMqCp-FrFINNATwpbe1Sn-BuE8D-VCIjZRUzHn94HXz_bw/exec';
+
 // ============ STATE ============
 let currentPage = 'beranda';
 let progress = { materi: false, game: false, kuis: false, refleksi: false };
@@ -477,9 +521,11 @@ function loadProgress() {
   if (savedRefleksi) {
     const r = JSON.parse(savedRefleksi);
     setTimeout(() => {
-      if (document.getElementById('refleksi1')) document.getElementById('refleksi1').value = r[0] || '';
-      if (document.getElementById('refleksi2')) document.getElementById('refleksi2').value = r[1] || '';
-      if (document.getElementById('refleksi3')) document.getElementById('refleksi3').value = r[2] || '';
+      if (document.getElementById('refleksi1')) document.getElementById('refleksi1').value = r.r1 || r[0] || '';
+      if (document.getElementById('refleksi2')) document.getElementById('refleksi2').value = r.r2 || r[1] || '';
+      if (document.getElementById('refleksi3')) document.getElementById('refleksi3').value = r.r3 || r[2] || '';
+      if (document.getElementById('refleksiNama')  && r.nama)  document.getElementById('refleksiNama').value  = r.nama;
+      if (document.getElementById('refleksiKelas') && r.kelas) document.getElementById('refleksiKelas').value = r.kelas;
     }, 100);
   }
   updateProgress();
@@ -532,6 +578,15 @@ function navigateTo(page) {
   document.getElementById('mainContent').scrollTop = 0;
   // Mobile menu close
   if (window.innerWidth < 768) document.getElementById('navMenu').classList.add('hidden');
+  // Auto-isi identitas refleksi dari kuis (jika sudah diisi)
+  if (page === 'refleksi') {
+    const kuisNama  = document.getElementById('namaSiswa')?.value.trim();
+    const kuisKelas = document.getElementById('kelasSiswa')?.value;
+    const rNama  = document.getElementById('refleksiNama');
+    const rKelas = document.getElementById('refleksiKelas');
+    if (kuisNama  && rNama  && !rNama.value)  rNama.value  = kuisNama;
+    if (kuisKelas && rKelas && !rKelas.value) rKelas.value = kuisKelas;
+  }
 }
 
 document.getElementById('menuToggle').addEventListener('click', () => {
@@ -884,21 +939,16 @@ async function finishKuis() {
   stored.push(kuisEntry);
   localStorage.setItem('algo_kuis_data', JSON.stringify(stored));
 
-  // ── Kirim ke Netlify Forms (aktif saat deploy di Netlify) ─────────────
-  // Untuk Google Apps Script (opsional - lebih dari 100 siswa/bulan):
-  // 1. Buat sheet baru di Google Sheets
-  // 2. Buka Extensions → Apps Script → tempel kode di netlify-setup.md
-  // 3. Deploy → Web App → Anyone can access → copy URL
-  // 4. Uncomment dan isi URL di bawah:
-  const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzNDKgZO6GkYYRur5spUNo3bvC1O6qjNBvvAtae39L-o6tzVNVMf1661bd1eGGdyroE/exec';
-
-  // Kirim ke Google Sheets
-if (typeof APPS_SCRIPT_URL !== 'undefined' && APPS_SCRIPT_URL.includes('script.google')) {
-  fetch(APPS_SCRIPT_URL, {
-    method: 'POST',
-    body: JSON.stringify(kuisEntry)
-  }).catch(() => {});
-}
+  // ── Kirim ke Google Apps Script (jika URL dikonfigurasi) ─────────────
+  // Untuk setup Google Apps Script → lihat SETUP.md
+  if (APPS_SCRIPT_URL) {
+    try {
+      await fetch(APPS_SCRIPT_URL, {
+        method: 'POST',
+        body: JSON.stringify({ type: 'kuis', ...kuisEntry })
+      });
+    } catch { /* silent fail, data sudah di localStorage & Netlify Forms */ }
+  }
 
   document.getElementById('kuisSaveStatus').textContent = '⏳ Menyimpan hasil...';
   try {
@@ -971,14 +1021,62 @@ function triggerConfetti() {
 }
 
 // ============ REFLEKSI ============
-function saveRefleksi() {
-  const r1 = document.getElementById('refleksi1').value;
-  const r2 = document.getElementById('refleksi2').value;
-  const r3 = document.getElementById('refleksi3').value;
-  localStorage.setItem('algo_refleksi', JSON.stringify([r1, r2, r3]));
+async function saveRefleksi() {
+  const nama  = document.getElementById('refleksiNama').value.trim();
+  const kelas = document.getElementById('refleksiKelas').value;
+  const r1    = document.getElementById('refleksi1').value.trim();
+  const r2    = document.getElementById('refleksi2').value.trim();
+  const r3    = document.getElementById('refleksi3').value.trim();
+
+  // Validasi identitas
+  const namaErr  = document.getElementById('refleksiNamaError');
+  const kelasErr = document.getElementById('refleksiKelasError');
+  namaErr.classList.toggle('hidden', nama.length > 0);
+  kelasErr.classList.toggle('hidden', kelas.length > 0);
+  if (!nama || !kelas) return;
+
+  const statusEl = document.getElementById('refleksiStatus');
+  statusEl.innerHTML = '<span class="text-gray-500">⏳ Menyimpan refleksi...</span>';
+
+  // ── Simpan ke localStorage ─────────────────────────────────────────────
+  const entry = { nama, kelas, r1, r2, r3, tanggal_waktu: new Date().toISOString() };
+  localStorage.setItem('algo_refleksi', JSON.stringify(entry));
   progress.refleksi = true;
   saveProgress();
-  document.getElementById('refleksiStatus').innerHTML = '<span class="text-green-600">✅ Refleksi berhasil disimpan!</span>';
+
+  // ── Kirim ke Netlify Forms ─────────────────────────────────────────────
+  try {
+    const params = new URLSearchParams({
+      'form-name':     'refleksi-siswa',
+      'nama_siswa':    nama,
+      'kelas':         kelas,
+      'refleksi_1':    r1,
+      'refleksi_2':    r2,
+      'refleksi_3':    r3,
+      'tanggal_waktu': entry.tanggal_waktu,
+      'bot-field':     ''
+    });
+    await fetch('/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: params.toString()
+    });
+  } catch { /* tetap lanjut ke Apps Script */ }
+
+  // ── Kirim ke Google Apps Script (jika URL dikonfigurasi) ───────────────
+  if (APPS_SCRIPT_URL) {
+    try {
+      await fetch(APPS_SCRIPT_URL, {
+        method: 'POST',
+        body: JSON.stringify({ type: 'refleksi', ...entry })
+      });
+      statusEl.innerHTML = '<span class="text-green-600">✅ Refleksi berhasil disimpan ke Google Sheets!</span>';
+    } catch {
+      statusEl.innerHTML = '<span class="text-green-600">✅ Refleksi tersimpan lokal. (Cek koneksi ke Google Sheets)</span>';
+    }
+  } else {
+    statusEl.innerHTML = '<span class="text-green-600">✅ Refleksi berhasil disimpan!</span>';
+  }
 }
 
 // ============ TOAST ============
