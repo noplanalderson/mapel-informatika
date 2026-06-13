@@ -1,0 +1,1022 @@
+<!doctype html>
+<html lang="id" class="h-full">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Multimedia Pembelajaran - Algoritma &amp; Pemrograman</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet">
+  <script>
+tailwind.config = {
+  theme: {
+    extend: {
+      fontFamily: { jakarta: ['Plus Jakarta Sans', 'sans-serif'] },
+      colors: {
+        primary: { 50:'#eff6ff',100:'#dbeafe',200:'#bfdbfe',300:'#93c5fd',400:'#60a5fa',500:'#3b82f6',600:'#2563eb',700:'#1d4ed8',800:'#1e40af',900:'#1e3a8a' },
+        accent: { 50:'#ecfdf5',100:'#d1fae5',200:'#a7f3d0',300:'#6ee7b7',400:'#34d399',500:'#10b981',600:'#059669',700:'#047857' }
+      }
+    }
+  }
+}
+</script>
+  <style>
+* { font-family: 'Plus Jakarta Sans', sans-serif; }
+html, body { height: 100%; margin: 0; }
+.fade-in { animation: fadeIn 0.4s ease; }
+@keyframes fadeIn { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+@keyframes confetti { 0%{transform:translateY(0) rotate(0);opacity:1} 100%{transform:translateY(100%) rotate(720deg);opacity:0} }
+.confetti-piece { position:fixed; width:10px; height:10px; top:-10px; animation: confetti 3s ease-out forwards; z-index:9999; }
+@keyframes bounce { 0%,100%{transform:scale(1)} 50%{transform:scale(1.1)} }
+.bounce { animation: bounce 0.5s ease; }
+@keyframes slideRight { from{transform:translateX(-100%);opacity:0} to{transform:translateX(0);opacity:1} }
+.slide-right { animation: slideRight 0.3s ease; }
+.nav-item { transition: all 0.2s ease; }
+.nav-item:hover { transform: translateX(4px); }
+.nav-item.active { background: linear-gradient(135deg, #3b82f6, #059669); color: white; }
+.card-hover { transition: all 0.3s ease; }
+.card-hover:hover { transform: translateY(-4px); box-shadow: 0 12px 24px rgba(0,0,0,0.1); }
+.progress-fill { transition: width 0.5s ease; }
+.badge-earned { animation: bounce 0.6s ease; }
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-thumb { background: #93c5fd; border-radius: 3px; }
+.drag-item { cursor: grab; user-select: none; transition: all 0.2s; }
+.drag-item:active { cursor: grabbing; }
+.drag-over { border-color: #3b82f6; background: #eff6ff; }
+</style>
+  <style>body { box-sizing: border-box; }</style>
+ </head>
+ <body class="h-full bg-gradient-to-br from-blue-50 via-white to-green-50">
+
+  <!-- =====================================================================
+       NETLIFY FORMS - Hidden form agar Netlify mendeteksi field secara otomatis.
+       Data kuis siswa akan masuk ke: Netlify Dashboard → Forms → kuis-hasil
+       ===================================================================== -->
+  <form name="kuis-hasil" data-netlify="true" netlify-honeypot="bot-field" hidden>
+    <input type="hidden" name="form-name" value="kuis-hasil">
+    <input type="text"   name="nama_siswa">
+    <input type="text"   name="kelas">
+    <input type="number" name="nilai_kuis">
+    <input type="number" name="jawaban_benar">
+    <input type="number" name="jawaban_salah">
+    <input type="number" name="persentase_nilai">
+    <input type="text"   name="tanggal_waktu">
+    <input type="text"   name="bot-field">
+  </form>
+
+  <div id="app" class="h-full w-full flex flex-col md:flex-row overflow-hidden"><!-- Sidebar Navigation -->
+   <nav id="sidebar" class="w-full md:w-64 bg-white shadow-lg md:h-full flex-shrink-0 z-40">
+    <div class="p-4 bg-gradient-to-r from-primary-600 to-accent-600 text-white">
+     <div class="flex items-center justify-between">
+      <div>
+       <h1 class="font-bold text-lg" id="appTitle">Algoritma &amp; Pemrograman</h1>
+       <p class="text-xs opacity-80">Informatika • Kelas 7 SMP</p>
+      </div><button id="menuToggle" class="md:hidden p-1 rounded hover:bg-white/20"><i data-lucide="menu" class="w-5 h-5"></i></button>
+     </div>
+    </div>
+    <div id="navMenu" class="hidden md:block p-3 space-y-1 overflow-y-auto" style="max-height:calc(100% - 80px)"><button onclick="navigateTo('beranda')" class="nav-item active w-full text-left px-4 py-3 rounded-lg flex items-center gap-3 text-sm font-medium" data-nav="beranda"> <i data-lucide="home" class="w-4 h-4"></i> Beranda </button> <button onclick="navigateTo('materi')" class="nav-item w-full text-left px-4 py-3 rounded-lg flex items-center gap-3 text-sm font-medium text-gray-600 hover:bg-gray-100" data-nav="materi"> <i data-lucide="book-open" class="w-4 h-4"></i> Materi </button> <button onclick="navigateTo('game')" class="nav-item w-full text-left px-4 py-3 rounded-lg flex items-center gap-3 text-sm font-medium text-gray-600 hover:bg-gray-100" data-nav="game"> <i data-lucide="gamepad-2" class="w-4 h-4"></i> Game Interaktif </button> <button onclick="navigateTo('kuis')" class="nav-item w-full text-left px-4 py-3 rounded-lg flex items-center gap-3 text-sm font-medium text-gray-600 hover:bg-gray-100" data-nav="kuis"> <i data-lucide="clipboard-list" class="w-4 h-4"></i> Kuis </button> <button onclick="navigateTo('refleksi')" class="nav-item w-full text-left px-4 py-3 rounded-lg flex items-center gap-3 text-sm font-medium text-gray-600 hover:bg-gray-100" data-nav="refleksi"> <i data-lucide="message-circle" class="w-4 h-4"></i> Refleksi </button>
+     <div class="mt-4 p-3 bg-gray-50 rounded-lg">
+      <p class="text-xs font-semibold text-gray-500 mb-2">Progress Belajar</p>
+      <div class="w-full bg-gray-200 rounded-full h-2.5">
+       <div id="progressBar" class="progress-fill bg-gradient-to-r from-primary-500 to-accent-500 h-2.5 rounded-full" style="width:0%"></div>
+      </div>
+      <p class="text-xs text-gray-500 mt-1"><span id="progressText">0</span>% selesai</p>
+     </div>
+     <div class="mt-3 p-3 bg-gray-50 rounded-lg">
+      <p class="text-xs font-semibold text-gray-500 mb-2">🏆 Badge</p>
+      <div id="badgeContainer" class="flex flex-wrap gap-1"></div>
+     </div>
+    </div>
+   </nav><!-- Main Content -->
+   <main id="mainContent" class="flex-1 h-full overflow-y-auto p-4 md:p-6"><!-- BERANDA -->
+    <section id="page-beranda" class="fade-in max-w-4xl mx-auto">
+     <div class="bg-white rounded-2xl shadow-md p-6 md:p-8 mb-6">
+      <div class="text-center mb-8">
+       <div class="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-primary-500 to-accent-500 rounded-2xl mb-4"><i data-lucide="cpu" class="w-8 h-8 text-white"></i>
+       </div>
+       <h2 class="text-2xl md:text-3xl font-bold text-gray-800 mb-2">Selamat Datang! 👋</h2>
+       <p class="text-gray-600">Multimedia Pembelajaran Interaktif</p>
+       <h3 class="text-xl font-bold text-primary-600 mt-2">Algoritma &amp; Pemrograman</h3>
+      </div>
+      <div class="bg-gradient-to-r from-primary-50 to-accent-50 rounded-xl p-6 mb-6">
+       <h4 class="font-bold text-gray-800 mb-3 flex items-center gap-2"><i data-lucide="target" class="w-5 h-5 text-primary-600"></i> Tujuan Pembelajaran</h4>
+       <ul class="space-y-2 text-sm text-gray-700">
+        <li class="flex items-start gap-2"><span class="text-accent-500 mt-0.5">✓</span> Siswa mampu menjelaskan pengertian algoritma.</li>
+        <li class="flex items-start gap-2"><span class="text-accent-500 mt-0.5">✓</span> Siswa mampu menyusun langkah-langkah penyelesaian masalah menggunakan notasi alami.</li>
+        <li class="flex items-start gap-2"><span class="text-accent-500 mt-0.5">✓</span> Siswa mampu menuliskan algoritma sederhana menggunakan pseudocode.</li>
+        <li class="flex items-start gap-2"><span class="text-accent-500 mt-0.5">✓</span> Siswa mampu membaca dan membuat flowchart sederhana.</li>
+        <li class="flex items-start gap-2"><span class="text-accent-500 mt-0.5">✓</span> Siswa mampu menerapkan konsep algoritma dalam kehidupan sehari-hari.</li>
+       </ul>
+      </div>
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+       <div class="card-hover bg-blue-50 rounded-xl p-4 text-center cursor-pointer" onclick="navigateTo('materi')"><i data-lucide="book-open" class="w-6 h-6 text-primary-600 mx-auto mb-2"></i>
+        <p class="text-xs font-medium text-gray-700">Materi</p>
+       </div>
+       <div class="card-hover bg-green-50 rounded-xl p-4 text-center cursor-pointer" onclick="navigateTo('game')"><i data-lucide="gamepad-2" class="w-6 h-6 text-accent-600 mx-auto mb-2"></i>
+        <p class="text-xs font-medium text-gray-700">Game</p>
+       </div>
+       <div class="card-hover bg-purple-50 rounded-xl p-4 text-center cursor-pointer" onclick="navigateTo('kuis')"><i data-lucide="clipboard-list" class="w-6 h-6 text-purple-600 mx-auto mb-2"></i>
+        <p class="text-xs font-medium text-gray-700">Kuis</p>
+       </div>
+       <div class="card-hover bg-orange-50 rounded-xl p-4 text-center cursor-pointer" onclick="navigateTo('refleksi')"><i data-lucide="message-circle" class="w-6 h-6 text-orange-600 mx-auto mb-2"></i>
+        <p class="text-xs font-medium text-gray-700">Refleksi</p>
+       </div>
+      </div>
+     </div>
+     <div class="text-center text-xs text-gray-400 mt-4">
+      Dikembangkan oleh: <strong>Ridwan Na'im, S.Kom.</strong> • Tahun 2026
+     </div>
+    </section><!-- MATERI -->
+    <section id="page-materi" class="fade-in max-w-4xl mx-auto hidden">
+     <div class="bg-white rounded-2xl shadow-md p-6 md:p-8">
+      <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-2"><i data-lucide="book-open" class="w-6 h-6 text-primary-600"></i> Materi Pembelajaran</h2><!-- Sub-bab tabs -->
+      <div class="flex flex-wrap gap-2 mb-6"><button onclick="showMateri(1)" class="materi-tab px-4 py-2 rounded-lg text-sm font-medium bg-primary-600 text-white">Pengantar Algoritma</button> <button onclick="showMateri(2)" class="materi-tab px-4 py-2 rounded-lg text-sm font-medium bg-gray-100 text-gray-600 hover:bg-gray-200">Notasi Alami</button> <button onclick="showMateri(3)" class="materi-tab px-4 py-2 rounded-lg text-sm font-medium bg-gray-100 text-gray-600 hover:bg-gray-200">Pseudocode</button> <button onclick="showMateri(4)" class="materi-tab px-4 py-2 rounded-lg text-sm font-medium bg-gray-100 text-gray-600 hover:bg-gray-200">Flowchart</button>
+      </div><!-- Materi 1: Pengantar -->
+      <div id="materi-1" class="materi-content fade-in">
+       <h3 class="text-lg font-bold text-primary-700 mb-4">1. Pengantar Algoritma</h3>
+       <div class="space-y-4">
+        <div class="bg-blue-50 rounded-xl p-5">
+         <h4 class="font-bold text-gray-800 mb-2">📖 Pengertian Algoritma</h4>
+         <p class="text-sm text-gray-700">Algoritma adalah <strong>urutan langkah-langkah logis dan sistematis</strong> yang digunakan untuk menyelesaikan suatu masalah atau mencapai tujuan tertentu. Kata "algoritma" berasal dari nama matematikawan Persia, <em>Abu Ja'far Muhammad ibn Musa al-Khwarizmi</em>.</p>
+        </div>
+        <div class="bg-green-50 rounded-xl p-5">
+         <h4 class="font-bold text-gray-800 mb-2">✅ Ciri-ciri Algoritma yang Baik</h4>
+         <ul class="text-sm text-gray-700 space-y-1 list-disc list-inside">
+          <li><strong>Finiteness</strong> – Memiliki langkah yang terbatas (pasti berhenti).</li>
+          <li><strong>Definiteness</strong> – Setiap langkah jelas dan tidak ambigu.</li>
+          <li><strong>Input</strong> – Memiliki nol atau lebih masukan.</li>
+          <li><strong>Output</strong> – Menghasilkan minimal satu keluaran.</li>
+          <li><strong>Effectiveness</strong> – Setiap langkah dapat dikerjakan.</li>
+         </ul>
+        </div>
+        <div class="bg-yellow-50 rounded-xl p-5">
+         <h4 class="font-bold text-gray-800 mb-2">🌟 Contoh Algoritma dalam Kehidupan Sehari-hari</h4>
+         <div class="text-sm text-gray-700">
+          <p class="font-medium mb-1">Algoritma Membuat Mie Instan:</p>
+          <ol class="list-decimal list-inside space-y-1">
+           <li>Siapkan panci dan air</li>
+           <li>Rebus air hingga mendidih</li>
+           <li>Masukkan mie ke dalam air mendidih</li>
+           <li>Tunggu 3 menit sambil diaduk</li>
+           <li>Angkat mie dan tiriskan</li>
+           <li>Campurkan bumbu</li>
+           <li>Mie siap disajikan</li>
+          </ol>
+         </div>
+        </div>
+       </div><button onclick="showMateri(2)" class="mt-4 px-6 py-2 bg-primary-600 text-white rounded-lg text-sm font-medium hover:bg-primary-700 transition">Selanjutnya →</button>
+      </div><!-- Materi 2: Notasi Alami -->
+      <div id="materi-2" class="materi-content fade-in hidden">
+       <h3 class="text-lg font-bold text-primary-700 mb-4">2. Notasi Alami</h3>
+       <div class="space-y-4">
+        <div class="bg-blue-50 rounded-xl p-5">
+         <h4 class="font-bold text-gray-800 mb-2">📖 Pengertian Notasi Alami</h4>
+         <p class="text-sm text-gray-700">Notasi alami adalah cara menuliskan algoritma menggunakan <strong>bahasa sehari-hari</strong> yang mudah dipahami. Notasi ini tidak memerlukan aturan khusus seperti bahasa pemrograman.</p>
+        </div>
+        <div class="grid md:grid-cols-2 gap-4">
+         <div class="bg-green-50 rounded-xl p-5">
+          <h4 class="font-bold text-gray-800 mb-2">👍 Kelebihan</h4>
+          <ul class="text-sm text-gray-700 space-y-1 list-disc list-inside">
+           <li>Mudah dipahami siapa saja</li>
+           <li>Tidak perlu belajar simbol khusus</li>
+           <li>Cepat ditulis</li>
+          </ul>
+         </div>
+         <div class="bg-red-50 rounded-xl p-5">
+          <h4 class="font-bold text-gray-800 mb-2">👎 Kekurangan</h4>
+          <ul class="text-sm text-gray-700 space-y-1 list-disc list-inside">
+           <li>Bisa bermakna ganda (ambigu)</li>
+           <li>Sulit diterjemahkan ke program</li>
+           <li>Tidak ada standar baku</li>
+          </ul>
+         </div>
+        </div>
+        <div class="bg-yellow-50 rounded-xl p-5">
+         <h4 class="font-bold text-gray-800 mb-2">📝 Contoh Notasi Alami - Menyeberang Jalan</h4>
+         <ol class="text-sm text-gray-700 list-decimal list-inside space-y-1">
+          <li>Berdiri di tepi jalan</li>
+          <li>Lihat ke kiri dan ke kanan</li>
+          <li>Jika ada kendaraan lewat, tunggu</li>
+          <li>Jika tidak ada kendaraan, seberangi jalan</li>
+          <li>Sampai di seberang jalan</li>
+         </ol>
+        </div><!-- Aktivitas Interaktif -->
+        <div class="bg-purple-50 rounded-xl p-5 border-2 border-purple-200">
+         <h4 class="font-bold text-gray-800 mb-3">🎯 Aktivitas: Urutkan Langkah Menggosok Gigi!</h4>
+         <p class="text-sm text-gray-600 mb-3">Seret dan urutkan langkah-langkah berikut:</p>
+         <div id="notasiActivity" class="space-y-2">
+         </div><button onclick="checkNotasiOrder()" class="mt-3 px-4 py-2 bg-purple-600 text-white rounded-lg text-sm font-medium hover:bg-purple-700">Cek Jawaban</button>
+         <p id="notasiResult" class="mt-2 text-sm font-medium"></p>
+        </div>
+       </div>
+       <div class="flex gap-2 mt-4"><button onclick="showMateri(1)" class="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-300">← Sebelumnya</button> <button onclick="showMateri(3)" class="px-6 py-2 bg-primary-600 text-white rounded-lg text-sm font-medium hover:bg-primary-700">Selanjutnya →</button>
+       </div>
+      </div><!-- Materi 3: Pseudocode -->
+      <div id="materi-3" class="materi-content fade-in hidden">
+       <h3 class="text-lg font-bold text-primary-700 mb-4">3. Pseudocode</h3>
+       <div class="space-y-4">
+        <div class="bg-blue-50 rounded-xl p-5">
+         <h4 class="font-bold text-gray-800 mb-2">📖 Pengertian Pseudocode</h4>
+         <p class="text-sm text-gray-700">Pseudocode adalah cara penulisan algoritma yang menyerupai <strong>bahasa pemrograman</strong> namun lebih sederhana dan tidak terikat aturan sintaks tertentu. "Pseudo" berarti semu/palsu, dan "code" berarti kode program.</p>
+        </div>
+        <div class="bg-green-50 rounded-xl p-5">
+         <h4 class="font-bold text-gray-800 mb-2">🔧 Struktur Dasar Pseudocode</h4>
+         <div class="bg-white rounded-lg p-4 font-mono text-sm text-gray-800">
+          <p class="text-blue-600">MULAI</p>
+          <p class="pl-4">// Deklarasi variabel</p>
+          <p class="pl-4">INPUT data</p>
+          <p class="pl-4">PROSES pengolahan</p>
+          <p class="pl-4">OUTPUT hasil</p>
+          <p class="text-blue-600">SELESAI</p>
+         </div>
+        </div>
+        <div class="bg-yellow-50 rounded-xl p-5">
+         <h4 class="font-bold text-gray-800 mb-2">💡 Contoh: Menghitung Luas Persegi Panjang</h4>
+         <div class="bg-white rounded-lg p-4 font-mono text-sm text-gray-800">
+          <p class="text-blue-600">MULAI</p>
+          <p class="pl-4">INPUT panjang</p>
+          <p class="pl-4">INPUT lebar</p>
+          <p class="pl-4">luas ← panjang × lebar</p>
+          <p class="pl-4">OUTPUT luas</p>
+          <p class="text-blue-600">SELESAI</p>
+         </div>
+        </div><!-- Latihan Pseudocode Rumpang -->
+        <div class="bg-purple-50 rounded-xl p-5 border-2 border-purple-200">
+         <h4 class="font-bold text-gray-800 mb-3">🎯 Latihan: Lengkapi Pseudocode!</h4>
+         <p class="text-sm text-gray-600 mb-3">Lengkapi pseudocode untuk menghitung luas segitiga:</p>
+         <div class="bg-white rounded-lg p-4 font-mono text-sm space-y-2">
+          <p class="text-blue-600">MULAI</p>
+          <p class="pl-4">INPUT <input id="pseudo1" type="text" class="border-b-2 border-purple-300 w-20 text-center outline-none focus:border-purple-600" placeholder="..."></p>
+          <p class="pl-4">INPUT tinggi</p>
+          <p class="pl-4">luas ← <input id="pseudo2" type="text" class="border-b-2 border-purple-300 w-32 text-center outline-none focus:border-purple-600" placeholder="..."></p>
+          <p class="pl-4">OUTPUT <input id="pseudo3" type="text" class="border-b-2 border-purple-300 w-20 text-center outline-none focus:border-purple-600" placeholder="..."></p>
+          <p class="text-blue-600">SELESAI</p>
+         </div><button onclick="checkPseudocode()" class="mt-3 px-4 py-2 bg-purple-600 text-white rounded-lg text-sm font-medium hover:bg-purple-700">Cek Jawaban</button>
+         <p id="pseudoResult" class="mt-2 text-sm font-medium"></p>
+        </div>
+       </div>
+       <div class="flex gap-2 mt-4"><button onclick="showMateri(2)" class="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-300">← Sebelumnya</button> <button onclick="showMateri(4)" class="px-6 py-2 bg-primary-600 text-white rounded-lg text-sm font-medium hover:bg-primary-700">Selanjutnya →</button>
+       </div>
+      </div><!-- Materi 4: Flowchart -->
+      <div id="materi-4" class="materi-content fade-in hidden">
+       <h3 class="text-lg font-bold text-primary-700 mb-4">4. Flowchart</h3>
+       <div class="space-y-4">
+        <div class="bg-blue-50 rounded-xl p-5">
+         <h4 class="font-bold text-gray-800 mb-2">📖 Pengertian &amp; Fungsi Flowchart</h4>
+         <p class="text-sm text-gray-700">Flowchart (diagram alir) adalah representasi grafis dari algoritma menggunakan simbol-simbol standar. Fungsinya untuk <strong>memvisualisasikan alur logika</strong> program sehingga mudah dipahami.</p>
+        </div>
+        <div class="bg-green-50 rounded-xl p-5">
+         <h4 class="font-bold text-gray-800 mb-3">🔶 Simbol-simbol Flowchart</h4>
+         <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <div class="flex items-center gap-3 bg-white rounded-lg p-3">
+           <svg width="60" height="30">
+            <rect x="5" y="5" width="50" height="20" rx="10" fill="#3b82f6" opacity="0.2" stroke="#3b82f6" stroke-width="2" />
+           </svg>
+           <div>
+            <p class="font-bold text-sm">Terminator</p>
+            <p class="text-xs text-gray-600">Mulai / Selesai</p>
+           </div>
+          </div>
+          <div class="flex items-center gap-3 bg-white rounded-lg p-3">
+           <svg width="60" height="30">
+            <rect x="5" y="5" width="50" height="20" fill="#10b981" opacity="0.2" stroke="#10b981" stroke-width="2" />
+           </svg>
+           <div>
+            <p class="font-bold text-sm">Process</p>
+            <p class="text-xs text-gray-600">Proses / Perhitungan</p>
+           </div>
+          </div>
+          <div class="flex items-center gap-3 bg-white rounded-lg p-3">
+           <svg width="60" height="35">
+            <polygon points="5,17 30,2 55,17 30,32" fill="#f59e0b" opacity="0.2" stroke="#f59e0b" stroke-width="2" />
+           </svg>
+           <div>
+            <p class="font-bold text-sm">Decision</p>
+            <p class="text-xs text-gray-600">Percabangan / Kondisi</p>
+           </div>
+          </div>
+          <div class="flex items-center gap-3 bg-white rounded-lg p-3">
+           <svg width="60" height="30">
+            <polygon points="15,5 55,5 45,25 5,25" fill="#8b5cf6" opacity="0.2" stroke="#8b5cf6" stroke-width="2" />
+           </svg>
+           <div>
+            <p class="font-bold text-sm">Input/Output</p>
+            <p class="text-xs text-gray-600">Masukan / Keluaran</p>
+           </div>
+          </div>
+          <div class="flex items-center gap-3 bg-white rounded-lg p-3">
+           <svg width="60" height="30">
+            <line x1="10" y1="15" x2="45" y2="15" stroke="#6b7280" stroke-width="2" marker-end="url(#arrow)" /><defs>
+             <marker id="arrow" markerwidth="6" markerheight="6" refx="5" refy="3" orient="auto">
+              <path d="M0,0 L6,3 L0,6 Z" fill="#6b7280" />
+             </marker>
+            </defs>
+           </svg>
+           <div>
+            <p class="font-bold text-sm">Flowline</p>
+            <p class="text-xs text-gray-600">Arah alur</p>
+           </div>
+          </div>
+         </div>
+        </div><!-- Contoh Flowchart -->
+        <div class="bg-yellow-50 rounded-xl p-5">
+         <h4 class="font-bold text-gray-800 mb-3">📊 Contoh Flowchart: Menentukan Bilangan Genap/Ganjil</h4>
+         <div class="flex justify-center">
+          <svg width="200" height="280" class="bg-white rounded-lg p-2"><rect x="60" y="5" width="80" height="30" rx="15" fill="#dbeafe" stroke="#3b82f6" stroke-width="2" /><text x="100" y="25" text-anchor="middle" font-size="10" font-weight="bold">
+            Mulai
+           </text> <line x1="100" y1="35" x2="100" y2="50" stroke="#6b7280" stroke-width="1.5" /> <polygon points="60,65 140,65 130,85 50,85" fill="#f3e8ff" stroke="#8b5cf6" stroke-width="2" /><text x="95" y="79" text-anchor="middle" font-size="9">
+            Input bilangan
+           </text> <line x1="100" y1="85" x2="100" y2="105" stroke="#6b7280" stroke-width="1.5" /> <polygon points="100,105 145,130 100,155 55,130" fill="#fef3c7" stroke="#f59e0b" stroke-width="2" /><text x="100" y="128" text-anchor="middle" font-size="8">
+            bil mod 2
+           </text><text x="100" y="140" text-anchor="middle" font-size="8">
+            = 0?
+           </text> <line x1="55" y1="130" x2="20" y2="130" stroke="#6b7280" stroke-width="1.5" /><text x="40" y="125" font-size="8">
+            Tidak
+           </text> <line x1="145" y1="130" x2="180" y2="130" stroke="#6b7280" stroke-width="1.5" /><text x="155" y="125" font-size="8">
+            Ya
+           </text> <polygon points="0,130 20,120 20,140" fill="#d1fae5" stroke="#10b981" stroke-width="1" /><rect x="-5" y="145" width="50" height="20" fill="#d1fae5" stroke="#10b981" stroke-width="1.5" /><text x="20" y="159" text-anchor="middle" font-size="8">
+            Ganjil
+           </text> <rect x="155" y="145" width="50" height="20" fill="#d1fae5" stroke="#10b981" stroke-width="1.5" /><text x="180" y="159" text-anchor="middle" font-size="8">
+            Genap
+           </text> <line x1="20" y1="165" x2="20" y2="240" stroke="#6b7280" stroke-width="1.5" /><line x1="20" y1="240" x2="100" y2="240" stroke="#6b7280" stroke-width="1.5" /> <line x1="180" y1="165" x2="180" y2="240" stroke="#6b7280" stroke-width="1.5" /><line x1="180" y1="240" x2="100" y2="240" stroke="#6b7280" stroke-width="1.5" /> <rect x="60" y="245" width="80" height="30" rx="15" fill="#dbeafe" stroke="#3b82f6" stroke-width="2" /><text x="100" y="265" text-anchor="middle" font-size="10" font-weight="bold">
+            Selesai
+           </text>
+          </svg>
+         </div>
+        </div><!-- Aktivitas Mencocokkan -->
+        <div class="bg-purple-50 rounded-xl p-5 border-2 border-purple-200">
+         <h4 class="font-bold text-gray-800 mb-3">🎯 Aktivitas: Cocokkan Simbol dengan Fungsinya!</h4>
+         <div id="matchActivity" class="space-y-3"></div><button onclick="checkFlowchartMatch()" class="mt-3 px-4 py-2 bg-purple-600 text-white rounded-lg text-sm font-medium hover:bg-purple-700">Cek Jawaban</button>
+         <p id="matchResult" class="mt-2 text-sm font-medium"></p>
+        </div>
+       </div>
+       <div class="flex gap-2 mt-4"><button onclick="showMateri(3)" class="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-300">← Sebelumnya</button> <button onclick="markMateriDone()" class="px-6 py-2 bg-accent-600 text-white rounded-lg text-sm font-medium hover:bg-accent-700">✓ Materi Selesai</button>
+       </div>
+      </div>
+     </div>
+    </section><!-- GAME -->
+    <section id="page-game" class="fade-in max-w-4xl mx-auto hidden">
+     <div class="bg-white rounded-2xl shadow-md p-6 md:p-8">
+      <h2 class="text-2xl font-bold text-gray-800 mb-2 flex items-center gap-2"><i data-lucide="gamepad-2" class="w-6 h-6 text-accent-600"></i> Petualangan Algoritma 🎮</h2>
+      <p class="text-gray-600 text-sm mb-6">Susun langkah-langkah algoritma dalam urutan yang benar!</p>
+      <div id="gameArea"><!-- Game Level Info -->
+       <div class="flex items-center justify-between mb-4 bg-gradient-to-r from-primary-50 to-accent-50 rounded-lg p-4">
+        <div><span class="text-sm font-bold text-primary-700" id="gameLevelLabel">Level 1</span>
+         <p class="text-xs text-gray-600" id="gameLevelDesc">Menyusun langkah membuat teh</p>
+        </div>
+        <div class="text-right"><span class="text-lg font-bold text-accent-600" id="gameScore">Skor: 0</span>
+        </div>
+       </div><!-- Game Content -->
+       <div id="gameContent" class="space-y-2"></div>
+       <div class="flex gap-2 mt-4"><button onclick="checkGameAnswer()" id="gameCheckBtn" class="px-6 py-2 bg-accent-600 text-white rounded-lg text-sm font-medium hover:bg-accent-700">Cek Jawaban</button>
+       </div>
+       <p id="gameResult" class="mt-3 text-sm font-medium"></p>
+      </div><!-- Game Complete -->
+      <div id="gameComplete" class="hidden text-center py-8">
+       <div class="text-5xl mb-4">
+        🏆
+       </div>
+       <h3 class="text-xl font-bold text-gray-800 mb-2">Petualangan Selesai!</h3>
+       <p class="text-gray-600 mb-2">Skor Akhir:</p>
+       <p class="text-4xl font-bold text-accent-600" id="gameFinalScore">0</p>
+       <p class="text-sm text-gray-500 mt-2" id="gameMessage"></p><button onclick="resetGame()" class="mt-4 px-6 py-2 bg-primary-600 text-white rounded-lg text-sm font-medium hover:bg-primary-700">Main Lagi</button>
+      </div>
+     </div>
+    </section><!-- KUIS -->
+    <section id="page-kuis" class="fade-in max-w-4xl mx-auto hidden">
+     <div class="bg-white rounded-2xl shadow-md p-6 md:p-8">
+      <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-2"><i data-lucide="clipboard-list" class="w-6 h-6 text-purple-600"></i> Kuis Algoritma</h2><!-- Identity Form -->
+      <div id="kuisIdentity">
+       <div class="bg-blue-50 rounded-xl p-6 mb-4">
+        <h3 class="font-bold text-gray-800 mb-4">📋 Isi Identitas Terlebih Dahulu</h3>
+        <div class="space-y-4">
+         <div><label class="block text-sm font-medium text-gray-700 mb-1" for="namaSiswa">Nama Siswa *</label> <input type="text" id="namaSiswa" class="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:border-primary-500 focus:outline-none" placeholder="Masukkan nama lengkap">
+          <p id="namaError" class="text-red-500 text-xs mt-1 hidden">Silakan isi nama terlebih dahulu.</p>
+         </div>
+         <div><label class="block text-sm font-medium text-gray-700 mb-1" for="kelasSiswa">Kelas *</label> <select id="kelasSiswa" class="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:border-primary-500 focus:outline-none"> <option value="">-- Pilih Kelas --</option> <option value="Kelas 7A">Kelas 7A</option> <option value="Kelas 7B">Kelas 7B</option> <option value="Kelas 8A">Kelas 8A</option> <option value="Kelas 8B">Kelas 8B</option> <option value="Kelas 9A">Kelas 9A</option> <option value="Kelas 9B">Kelas 9B</option> </select>
+          <p id="kelasError" class="text-red-500 text-xs mt-1 hidden">Silakan pilih kelas terlebih dahulu.</p>
+         </div>
+        </div><button onclick="startKuis()" id="mulaiKuisBtn" class="mt-4 px-6 py-3 bg-purple-600 text-white rounded-lg font-medium hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition" disabled>Mulai Kuis</button>
+       </div>
+      </div><!-- Quiz Area -->
+      <div id="kuisArea" class="hidden">
+       <div class="flex items-center justify-between mb-4"><span class="text-sm font-medium text-gray-600">Soal <span id="kuisNum">1</span>/10</span>
+        <div class="flex-1 mx-4 bg-gray-200 rounded-full h-2">
+         <div id="kuisProgress" class="bg-purple-600 h-2 rounded-full transition-all" style="width:10%"></div>
+        </div>
+       </div>
+       <div id="kuisQuestion" class="bg-gray-50 rounded-xl p-5 mb-4"></div>
+       <div id="kuisOptions" class="space-y-2 mb-4"></div>
+       <div class="flex justify-between"><button onclick="prevQuestion()" id="prevBtn" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-300 disabled:opacity-50" disabled>← Sebelumnya</button> <button onclick="nextQuestion()" id="nextBtn" class="px-4 py-2 bg-purple-600 text-white rounded-lg text-sm font-medium hover:bg-purple-700">Selanjutnya →</button>
+       </div>
+      </div><!-- Quiz Result -->
+      <div id="kuisResult" class="hidden text-center py-6">
+       <div id="kuisResultIcon" class="text-5xl mb-4">
+        🎉
+       </div>
+       <h3 class="text-xl font-bold text-gray-800 mb-2">Hasil Kuis</h3>
+       <p class="text-gray-600 mb-1" id="kuisResultName"></p>
+       <p class="text-4xl font-bold text-purple-600 my-3" id="kuisResultScore"></p>
+       <p class="text-lg font-semibold mb-1" id="kuisResultCategory"></p>
+       <div class="grid grid-cols-3 gap-4 mt-4 max-w-sm mx-auto">
+        <div class="bg-green-50 rounded-lg p-3">
+         <p class="text-green-600 font-bold text-lg" id="kuisCorrect">0</p>
+         <p class="text-xs text-gray-600">Benar</p>
+        </div>
+        <div class="bg-red-50 rounded-lg p-3">
+         <p class="text-red-600 font-bold text-lg" id="kuisWrong">0</p>
+         <p class="text-xs text-gray-600">Salah</p>
+        </div>
+        <div class="bg-blue-50 rounded-lg p-3">
+         <p class="text-blue-600 font-bold text-lg" id="kuisPercent">0%</p>
+         <p class="text-xs text-gray-600">Persentase</p>
+        </div>
+       </div>
+       <div id="certificateArea" class="hidden mt-6"></div><button onclick="resetKuis()" class="mt-4 px-6 py-2 bg-gray-200 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-300">Kerjakan Ulang</button>
+       <p id="kuisSaveStatus" class="mt-2 text-xs text-gray-500"></p>
+      </div>
+     </div>
+    </section><!-- REFLEKSI -->
+    <section id="page-refleksi" class="fade-in max-w-4xl mx-auto hidden">
+     <div class="bg-white rounded-2xl shadow-md p-6 md:p-8">
+      <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-2"><i data-lucide="message-circle" class="w-6 h-6 text-orange-600"></i> Refleksi Pembelajaran</h2>
+      <div class="space-y-5">
+       <div class="bg-orange-50 rounded-xl p-5"><label class="block font-bold text-gray-800 mb-2">1. Apa yang sudah saya pahami hari ini?</label> <textarea id="refleksi1" class="w-full px-4 py-3 border-2 border-orange-200 rounded-lg focus:border-orange-400 focus:outline-none resize-none" rows="3" placeholder="Tuliskan pemahaman Anda..."></textarea>
+       </div>
+       <div class="bg-yellow-50 rounded-xl p-5"><label class="block font-bold text-gray-800 mb-2">2. Materi apa yang masih sulit dipahami?</label> <textarea id="refleksi2" class="w-full px-4 py-3 border-2 border-yellow-200 rounded-lg focus:border-yellow-400 focus:outline-none resize-none" rows="3" placeholder="Tuliskan kesulitan Anda..."></textarea>
+       </div>
+       <div class="bg-green-50 rounded-xl p-5"><label class="block font-bold text-gray-800 mb-2">3. Bagaimana saya akan menerapkan algoritma dalam kehidupan sehari-hari?</label> <textarea id="refleksi3" class="w-full px-4 py-3 border-2 border-green-200 rounded-lg focus:border-green-400 focus:outline-none resize-none" rows="3" placeholder="Tuliskan rencana penerapan Anda..."></textarea>
+       </div><button onclick="saveRefleksi()" class="px-6 py-3 bg-orange-600 text-white rounded-lg font-medium hover:bg-orange-700 transition">💾 Simpan Refleksi</button>
+       <p id="refleksiStatus" class="text-sm font-medium"></p>
+      </div>
+     </div>
+     <div class="text-center text-xs text-gray-400 mt-6 pb-4">
+      <p>Dikembangkan oleh: <strong>Ridwan Na'im, S.Kom.</strong></p>
+      <p>Tahun 2026</p>
+     </div>
+    </section>
+   </main>
+  </div>
+  <script>
+// ============ STATE ============
+let currentPage = 'beranda';
+let progress = { materi: false, game: false, kuis: false, refleksi: false };
+let badges = [];
+let gameLevel = 1;
+let gameScore = 0;
+let kuisAnswers = new Array(10).fill(null);
+let kuisCurrentQ = 0;
+
+// Load progress from localStorage
+function loadProgress() {
+  const saved = localStorage.getItem('algo_progress');
+  if (saved) { progress = JSON.parse(saved); }
+  const savedBadges = localStorage.getItem('algo_badges');
+  if (savedBadges) { badges = JSON.parse(savedBadges); }
+  const savedRefleksi = localStorage.getItem('algo_refleksi');
+  if (savedRefleksi) {
+    const r = JSON.parse(savedRefleksi);
+    setTimeout(() => {
+      if (document.getElementById('refleksi1')) document.getElementById('refleksi1').value = r[0] || '';
+      if (document.getElementById('refleksi2')) document.getElementById('refleksi2').value = r[1] || '';
+      if (document.getElementById('refleksi3')) document.getElementById('refleksi3').value = r[2] || '';
+    }, 100);
+  }
+  updateProgress();
+  updateBadges();
+}
+
+function saveProgress() {
+  localStorage.setItem('algo_progress', JSON.stringify(progress));
+  localStorage.setItem('algo_badges', JSON.stringify(badges));
+  updateProgress();
+  updateBadges();
+}
+
+function updateProgress() {
+  const total = Object.values(progress).filter(Boolean).length;
+  const pct = Math.round((total / 4) * 100);
+  document.getElementById('progressBar').style.width = pct + '%';
+  document.getElementById('progressText').textContent = pct;
+}
+
+function updateBadges() {
+  const container = document.getElementById('badgeContainer');
+  const allBadges = [
+    { id: 'notasi', label: '📝 Ahli Notasi Alami', color: 'bg-blue-100' },
+    { id: 'pseudo', label: '💻 Ahli Pseudocode', color: 'bg-green-100' },
+    { id: 'flow', label: '📊 Ahli Flowchart', color: 'bg-yellow-100' },
+    { id: 'master', label: '🏆 Master Algoritma', color: 'bg-purple-100' }
+  ];
+  container.innerHTML = allBadges.map(b => {
+    const earned = badges.includes(b.id);
+    return `<span class="inline-block px-2 py-1 rounded text-xs ${earned ? b.color + ' badge-earned' : 'bg-gray-100 opacity-50'}">${b.label}</span>`;
+  }).join('');
+}
+
+function addBadge(id) {
+  if (!badges.includes(id)) { badges.push(id); saveProgress(); }
+}
+
+// ============ NAVIGATION ============
+function navigateTo(page) {
+  currentPage = page;
+  document.querySelectorAll('[id^="page-"]').forEach(el => el.classList.add('hidden'));
+  document.getElementById('page-' + page).classList.remove('hidden');
+  document.querySelectorAll('[data-nav]').forEach(el => {
+    el.classList.remove('active');
+    el.classList.add('text-gray-600', 'hover:bg-gray-100');
+  });
+  const active = document.querySelector(`[data-nav="${page}"]`);
+  if (active) { active.classList.add('active'); active.classList.remove('text-gray-600', 'hover:bg-gray-100'); }
+  document.getElementById('mainContent').scrollTop = 0;
+  // Mobile menu close
+  if (window.innerWidth < 768) document.getElementById('navMenu').classList.add('hidden');
+}
+
+document.getElementById('menuToggle').addEventListener('click', () => {
+  document.getElementById('navMenu').classList.toggle('hidden');
+});
+
+// ============ MATERI ============
+function showMateri(num) {
+  document.querySelectorAll('.materi-content').forEach(el => el.classList.add('hidden'));
+  document.getElementById('materi-' + num).classList.remove('hidden');
+  document.querySelectorAll('.materi-tab').forEach((el, i) => {
+    if (i === num - 1) { el.className = 'materi-tab px-4 py-2 rounded-lg text-sm font-medium bg-primary-600 text-white'; }
+    else { el.className = 'materi-tab px-4 py-2 rounded-lg text-sm font-medium bg-gray-100 text-gray-600 hover:bg-gray-200'; }
+  });
+  if (num === 2) initNotasiActivity();
+  if (num === 4) initMatchActivity();
+}
+
+function markMateriDone() {
+  progress.materi = true;
+  saveProgress();
+  showToast('✅ Materi selesai! Lanjut ke Game Interaktif?');
+}
+
+// Notasi Activity - drag sort
+const notasiSteps = [
+  'Ambil sikat gigi',
+  'Oleskan pasta gigi pada sikat',
+  'Basahi sikat gigi',
+  'Gosok gigi bagian depan, belakang, dan samping',
+  'Kumur-kumur dengan air',
+  'Bilas sikat gigi dan simpan'
+];
+const notasiCorrect = [0, 2, 1, 3, 4, 5];
+let notasiOrder = [];
+
+function initNotasiActivity() {
+  notasiOrder = [...Array(6).keys()].sort(() => Math.random() - 0.5);
+  renderNotasi();
+}
+
+function renderNotasi() {
+  const container = document.getElementById('notasiActivity');
+  container.innerHTML = notasiOrder.map((idx, pos) => `
+    <div class="drag-item flex items-center gap-2 bg-white rounded-lg p-3 border-2 border-gray-200" draggable="true" data-pos="${pos}">
+      <span class="text-gray-400 font-bold">${pos+1}.</span>
+      <span class="text-sm">${notasiSteps[idx]}</span>
+      <span class="ml-auto text-gray-300">⋮⋮</span>
+    </div>
+  `).join('');
+  // Simple drag
+  const items = container.querySelectorAll('.drag-item');
+  let dragIdx = null;
+  items.forEach(item => {
+    item.addEventListener('dragstart', e => { dragIdx = parseInt(item.dataset.pos); item.style.opacity = '0.5'; });
+    item.addEventListener('dragend', () => { item.style.opacity = '1'; });
+    item.addEventListener('dragover', e => { e.preventDefault(); item.classList.add('drag-over'); });
+    item.addEventListener('dragleave', () => { item.classList.remove('drag-over'); });
+    item.addEventListener('drop', e => {
+      e.preventDefault(); item.classList.remove('drag-over');
+      const dropIdx = parseInt(item.dataset.pos);
+      const temp = notasiOrder[dragIdx];
+      notasiOrder[dragIdx] = notasiOrder[dropIdx];
+      notasiOrder[dropIdx] = temp;
+      renderNotasi();
+    });
+  });
+}
+
+function checkNotasiOrder() {
+  const correct = JSON.stringify(notasiOrder) === JSON.stringify(notasiCorrect);
+  const el = document.getElementById('notasiResult');
+  if (correct) {
+    el.innerHTML = '🎉 <span class="text-green-600">Benar! Urutan langkah menggosok gigi sudah tepat!</span>';
+    addBadge('notasi');
+  } else {
+    el.innerHTML = '💪 <span class="text-orange-600">Belum tepat. Coba pikirkan langkah yang paling awal dilakukan!</span>';
+  }
+}
+
+// Pseudocode check
+function checkPseudocode() {
+  const a1 = document.getElementById('pseudo1').value.toLowerCase().trim();
+  const a2 = document.getElementById('pseudo2').value.toLowerCase().replace(/\s/g,'');
+  const a3 = document.getElementById('pseudo3').value.toLowerCase().trim();
+  const el = document.getElementById('pseudoResult');
+  const c1 = a1.includes('alas');
+  const c2 = a2.includes('alas') && a2.includes('tinggi') && (a2.includes('/2') || a2.includes('×0.5') || a2.includes('*0.5') || a2.includes('/2') || a2.includes('÷2'));
+  const c3 = a3.includes('luas');
+  if (c1 && c2 && c3) {
+    el.innerHTML = '🎉 <span class="text-green-600">Sempurna! Pseudocode luas segitiga benar!</span>';
+    addBadge('pseudo');
+  } else if (c1 || c3) {
+    el.innerHTML = '💪 <span class="text-orange-600">Hampir benar! Ingat rumus luas segitiga = alas × tinggi / 2</span>';
+  } else {
+    el.innerHTML = '💪 <span class="text-orange-600">Coba lagi! Ingat: INPUT alas, luas ← alas × tinggi / 2, OUTPUT luas</span>';
+  }
+}
+
+// Flowchart Match Activity
+const matchSymbols = [
+  { name: 'Terminator', func: 'Menandai awal/akhir program' },
+  { name: 'Process', func: 'Proses atau perhitungan' },
+  { name: 'Decision', func: 'Percabangan/kondisi' },
+  { name: 'Input/Output', func: 'Memasukkan/mengeluarkan data' },
+  { name: 'Flowline', func: 'Menunjukkan arah alur' }
+];
+
+function initMatchActivity() {
+  const container = document.getElementById('matchActivity');
+  const shuffledFuncs = [...matchSymbols.map(s => s.func)].sort(() => Math.random() - 0.5);
+  container.innerHTML = matchSymbols.map((s, i) => `
+    <div class="flex items-center gap-3">
+      <span class="font-medium text-sm w-28">${s.name}</span>
+      <select class="match-select flex-1 px-3 py-2 border-2 border-gray-200 rounded-lg text-sm focus:border-purple-400 focus:outline-none" data-idx="${i}">
+        <option value="">-- Pilih fungsi --</option>
+        ${shuffledFuncs.map(f => `<option value="${f}">${f}</option>`).join('')}
+      </select>
+    </div>
+  `).join('');
+}
+
+function checkFlowchartMatch() {
+  const selects = document.querySelectorAll('.match-select');
+  let correct = 0;
+  selects.forEach(sel => {
+    const idx = parseInt(sel.dataset.idx);
+    if (sel.value === matchSymbols[idx].func) { correct++; sel.style.borderColor = '#10b981'; }
+    else { sel.style.borderColor = '#ef4444'; }
+  });
+  const el = document.getElementById('matchResult');
+  if (correct === 5) {
+    el.innerHTML = '🎉 <span class="text-green-600">Sempurna! Semua cocok!</span>';
+    addBadge('flow');
+  } else {
+    el.innerHTML = `💪 <span class="text-orange-600">${correct}/5 benar. Coba lagi!</span>`;
+  }
+}
+
+// ============ GAME ============
+const gameLevels = [
+  { title: 'Level 1', desc: 'Menyusun langkah membuat teh', type: 'sort',
+    steps: ['Siapkan cangkir', 'Masukkan teh celup ke cangkir', 'Rebus air hingga mendidih', 'Tuang air panas ke cangkir', 'Tunggu 3-5 menit', 'Angkat teh celup', 'Tambahkan gula sesuai selera', 'Aduk dan teh siap diminum'],
+    correct: [0, 2, 1, 3, 4, 5, 6, 7]
+  },
+  { title: 'Level 2', desc: 'Menyusun langkah menyalakan komputer', type: 'sort',
+    steps: ['Pastikan kabel power terhubung', 'Tekan tombol power pada CPU', 'Tunggu proses booting', 'Masukkan password (jika ada)', 'Desktop siap digunakan', 'Nyalakan monitor'],
+    correct: [0, 5, 1, 2, 3, 4]
+  },
+  { title: 'Level 3', desc: 'Memilih flowchart yang sesuai', type: 'choice',
+    question: 'Manakah flowchart yang tepat untuk menentukan apakah seseorang boleh masuk bioskop (umur ≥ 17)?',
+    options: [
+      'Mulai → Input umur → Jika umur ≥ 17: Boleh masuk → Selesai; Jika tidak: Tidak boleh → Selesai',
+      'Mulai → Input umur → Output umur → Selesai',
+      'Mulai → Boleh masuk → Selesai'
+    ],
+    correct: 0
+  }
+];
+let gameStepOrder = [];
+
+function initGame() {
+  const level = gameLevels[gameLevel - 1];
+  document.getElementById('gameLevelLabel').textContent = level.title;
+  document.getElementById('gameLevelDesc').textContent = level.desc;
+  document.getElementById('gameScore').textContent = 'Skor: ' + gameScore;
+  document.getElementById('gameResult').textContent = '';
+  document.getElementById('gameArea').classList.remove('hidden');
+  document.getElementById('gameComplete').classList.add('hidden');
+
+  const container = document.getElementById('gameContent');
+  if (level.type === 'sort') {
+    gameStepOrder = [...Array(level.steps.length).keys()].sort(() => Math.random() - 0.5);
+    renderGameSort(container, level);
+  } else {
+    container.innerHTML = `
+      <p class="font-medium text-sm mb-3">${level.question}</p>
+      <div class="space-y-2">${level.options.map((opt, i) => `
+        <label class="flex items-start gap-3 p-3 bg-gray-50 rounded-lg cursor-pointer hover:bg-blue-50 border-2 border-transparent has-[:checked]:border-primary-500">
+          <input type="radio" name="gameChoice" value="${i}" class="mt-1">
+          <span class="text-sm">${opt}</span>
+        </label>
+      `).join('')}</div>
+    `;
+  }
+}
+
+function renderGameSort(container, level) {
+  container.innerHTML = gameStepOrder.map((idx, pos) => `
+    <div class="drag-item flex items-center gap-2 bg-gray-50 rounded-lg p-3 border-2 border-gray-200" draggable="true" data-pos="${pos}">
+      <span class="text-gray-400 font-bold text-sm">${pos+1}.</span>
+      <span class="text-sm">${level.steps[idx]}</span>
+      <span class="ml-auto text-gray-300">⋮⋮</span>
+    </div>
+  `).join('');
+  const items = container.querySelectorAll('.drag-item');
+  let dragIdx = null;
+  items.forEach(item => {
+    item.addEventListener('dragstart', () => { dragIdx = parseInt(item.dataset.pos); item.style.opacity='0.5'; });
+    item.addEventListener('dragend', () => { item.style.opacity='1'; });
+    item.addEventListener('dragover', e => { e.preventDefault(); item.classList.add('drag-over'); });
+    item.addEventListener('dragleave', () => { item.classList.remove('drag-over'); });
+    item.addEventListener('drop', e => {
+      e.preventDefault(); item.classList.remove('drag-over');
+      const dropIdx = parseInt(item.dataset.pos);
+      const temp = gameStepOrder[dragIdx]; gameStepOrder[dragIdx] = gameStepOrder[dropIdx]; gameStepOrder[dropIdx] = temp;
+      renderGameSort(container, level);
+    });
+  });
+}
+
+function checkGameAnswer() {
+  const level = gameLevels[gameLevel - 1];
+  const el = document.getElementById('gameResult');
+  let correct = false;
+
+  if (level.type === 'sort') {
+    correct = JSON.stringify(gameStepOrder) === JSON.stringify(level.correct);
+  } else {
+    const sel = document.querySelector('input[name="gameChoice"]:checked');
+    if (!sel) { el.innerHTML = '<span class="text-orange-600">Pilih jawaban terlebih dahulu!</span>'; return; }
+    correct = parseInt(sel.value) === level.correct;
+  }
+
+  if (correct) {
+    gameScore += 30;
+    el.innerHTML = '🎉 <span class="text-green-600 bounce">Benar! +30 poin</span>';
+    document.getElementById('gameScore').textContent = 'Skor: ' + gameScore;
+    setTimeout(() => {
+      if (gameLevel < 3) { gameLevel++; initGame(); }
+      else { showGameComplete(); }
+    }, 1500);
+  } else {
+    el.innerHTML = '💪 <span class="text-orange-600">Belum tepat. Jangan menyerah, coba lagi!</span>';
+  }
+}
+
+function showGameComplete() {
+  document.getElementById('gameArea').classList.add('hidden');
+  document.getElementById('gameComplete').classList.remove('hidden');
+  document.getElementById('gameFinalScore').textContent = gameScore + ' / 90';
+  const msg = gameScore >= 60 ? 'Hebat! Kamu sudah menguasai algoritma!' : 'Terus berlatih, kamu pasti bisa!';
+  document.getElementById('gameMessage').textContent = msg;
+  progress.game = true;
+  saveProgress();
+  if (gameScore >= 60) addBadge('master');
+}
+
+function resetGame() { gameLevel = 1; gameScore = 0; initGame(); }
+
+// ============ KUIS ============
+const kuisQuestions = [
+  { q: 'Apa pengertian algoritma?', opts: ['Bahasa pemrograman komputer', 'Urutan langkah logis dan sistematis untuk menyelesaikan masalah', 'Perangkat keras komputer', 'Sistem operasi'], ans: 1 },
+  { q: 'Manakah yang merupakan penulisan algoritma menggunakan notasi alami?', opts: ['Kode program Python', 'Diagram alir dengan simbol', 'Langkah-langkah dalam bahasa sehari-hari', 'Tabel kebenaran logika'], ans: 2 },
+  { q: 'Kelebihan notasi alami adalah...', opts: ['Mudah diconvert ke program', 'Menggunakan simbol standar', 'Mudah dipahami siapa saja', 'Tidak bisa ambigu'], ans: 2 },
+  { q: 'Kekurangan notasi alami adalah...', opts: ['Sulit dipahami', 'Bisa bermakna ganda (ambigu)', 'Harus menggunakan komputer', 'Membutuhkan software khusus'], ans: 1 },
+  { q: 'Apa itu pseudocode?', opts: ['Bahasa pemrograman resmi', 'Kode palsu yang menyerupai bahasa pemrograman', 'Diagram alir', 'Kode mesin'], ans: 1 },
+  { q: 'Struktur dasar pseudocode yang benar adalah...', opts: ['INPUT → MULAI → PROSES → SELESAI', 'MULAI → INPUT → PROSES → OUTPUT → SELESAI', 'OUTPUT → PROSES → INPUT → MULAI', 'PROSES → INPUT → OUTPUT'], ans: 1 },
+  { q: 'Dalam pseudocode, "luas ← panjang × lebar" termasuk bagian...', opts: ['Input', 'Output', 'Proses', 'Deklarasi'], ans: 2 },
+  { q: 'Simbol persegi panjang dalam flowchart menunjukkan...', opts: ['Mulai/Selesai', 'Percabangan', 'Proses', 'Input/Output'], ans: 2 },
+  { q: 'Simbol belah ketupat (diamond) dalam flowchart berfungsi untuk...', opts: ['Menandai awal program', 'Menyimpan data', 'Membuat keputusan/percabangan', 'Menampilkan output'], ans: 2 },
+  { q: 'Simbol yang berbentuk oval/stadium dalam flowchart adalah...', opts: ['Process', 'Decision', 'Terminator', 'Connector'], ans: 2 }
+];
+
+function validateKuisIdentity() {
+  const nama = document.getElementById('namaSiswa').value.trim();
+  const kelas = document.getElementById('kelasSiswa').value;
+  document.getElementById('namaError').classList.toggle('hidden', nama.length > 0);
+  document.getElementById('kelasError').classList.toggle('hidden', kelas.length > 0);
+  document.getElementById('mulaiKuisBtn').disabled = !(nama && kelas);
+}
+
+document.getElementById('namaSiswa').addEventListener('input', validateKuisIdentity);
+document.getElementById('kelasSiswa').addEventListener('change', validateKuisIdentity);
+
+function startKuis() {
+  const nama = document.getElementById('namaSiswa').value.trim();
+  const kelas = document.getElementById('kelasSiswa').value;
+  if (!nama) { document.getElementById('namaError').classList.remove('hidden'); return; }
+  if (!kelas) { document.getElementById('kelasError').classList.remove('hidden'); return; }
+  document.getElementById('kuisIdentity').classList.add('hidden');
+  document.getElementById('kuisArea').classList.remove('hidden');
+  kuisCurrentQ = 0;
+  kuisAnswers = new Array(10).fill(null);
+  renderQuestion();
+}
+
+function renderQuestion() {
+  const q = kuisQuestions[kuisCurrentQ];
+  document.getElementById('kuisNum').textContent = kuisCurrentQ + 1;
+  document.getElementById('kuisProgress').style.width = ((kuisCurrentQ + 1) * 10) + '%';
+  document.getElementById('kuisQuestion').innerHTML = `<p class="font-medium text-gray-800">${kuisCurrentQ + 1}. ${q.q}</p>`;
+  document.getElementById('kuisOptions').innerHTML = q.opts.map((opt, i) => `
+    <label class="flex items-center gap-3 p-3 bg-gray-50 rounded-lg cursor-pointer hover:bg-blue-50 border-2 ${kuisAnswers[kuisCurrentQ] === i ? 'border-purple-500 bg-purple-50' : 'border-transparent'}">
+      <input type="radio" name="kuisAns" value="${i}" ${kuisAnswers[kuisCurrentQ] === i ? 'checked' : ''} onchange="kuisAnswers[${kuisCurrentQ}]=${i};renderQuestion()">
+      <span class="text-sm">${opt}</span>
+    </label>
+  `).join('');
+  document.getElementById('prevBtn').disabled = kuisCurrentQ === 0;
+  document.getElementById('nextBtn').textContent = kuisCurrentQ === 9 ? 'Selesai ✓' : 'Selanjutnya →';
+}
+
+function nextQuestion() {
+  if (kuisCurrentQ === 9) { finishKuis(); return; }
+  kuisCurrentQ++;
+  renderQuestion();
+}
+function prevQuestion() { if (kuisCurrentQ > 0) { kuisCurrentQ--; renderQuestion(); } }
+
+async function finishKuis() {
+  let correct = 0;
+  kuisQuestions.forEach((q, i) => { if (kuisAnswers[i] === q.ans) correct++; });
+  const wrong = 10 - correct;
+  const score = correct * 10;
+  const pct = score;
+  let cat = 'Perlu Belajar Lagi';
+  if (score >= 90) cat = 'Sangat Baik 🌟';
+  else if (score >= 80) cat = 'Baik 👍';
+  else if (score >= 70) cat = 'Cukup 👌';
+
+  document.getElementById('kuisArea').classList.add('hidden');
+  document.getElementById('kuisResult').classList.remove('hidden');
+  document.getElementById('kuisResultName').textContent = document.getElementById('namaSiswa').value + ' - ' + document.getElementById('kelasSiswa').value;
+  document.getElementById('kuisResultScore').textContent = score + '/100';
+  document.getElementById('kuisResultCategory').textContent = cat;
+  document.getElementById('kuisCorrect').textContent = correct;
+  document.getElementById('kuisWrong').textContent = wrong;
+  document.getElementById('kuisPercent').textContent = pct + '%';
+  document.getElementById('kuisResultIcon').textContent = score >= 70 ? '🎉' : '📚';
+
+  if (score >= 70) {
+    triggerConfetti();
+    showCertificate(document.getElementById('namaSiswa').value, score, cat);
+  }
+
+  progress.kuis = true;
+  saveProgress();
+
+  // ── Simpan ke localStorage (selalu tersedia) ──────────────────────────
+  const kuisEntry = {
+    nama_siswa: document.getElementById('namaSiswa').value.trim(),
+    kelas:      document.getElementById('kelasSiswa').value,
+    nilai_kuis: score,
+    jawaban_benar: correct,
+    jawaban_salah: wrong,
+    persentase_nilai: pct,
+    tanggal_waktu: new Date().toISOString()
+  };
+  const stored = JSON.parse(localStorage.getItem('algo_kuis_data') || '[]');
+  stored.push(kuisEntry);
+  localStorage.setItem('algo_kuis_data', JSON.stringify(stored));
+
+  // ── Kirim ke Netlify Forms (aktif saat deploy di Netlify) ─────────────
+  // Untuk Google Apps Script (opsional - lebih dari 100 siswa/bulan):
+  // 1. Buat sheet baru di Google Sheets
+  // 2. Buka Extensions → Apps Script → tempel kode di netlify-setup.md
+  // 3. Deploy → Web App → Anyone can access → copy URL
+  // 4. Uncomment dan isi URL di bawah:
+  const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzNDKgZO6GkYYRur5spUNo3bvC1O6qjNBvvAtae39L-o6tzVNVMf1661bd1eGGdyroE/exec';
+
+  // Kirim ke Google Sheets
+if (typeof APPS_SCRIPT_URL !== 'undefined' && APPS_SCRIPT_URL.includes('script.google')) {
+  fetch(APPS_SCRIPT_URL, {
+    method: 'POST',
+    body: JSON.stringify(kuisEntry)
+  }).catch(() => {});
+}
+
+  document.getElementById('kuisSaveStatus').textContent = '⏳ Menyimpan hasil...';
+  try {
+    const params = new URLSearchParams({
+      'form-name':      'kuis-hasil',
+      'nama_siswa':     kuisEntry.nama_siswa,
+      'kelas':          kuisEntry.kelas,
+      'nilai_kuis':     kuisEntry.nilai_kuis,
+      'jawaban_benar':  kuisEntry.jawaban_benar,
+      'jawaban_salah':  kuisEntry.jawaban_salah,
+      'persentase_nilai': kuisEntry.persentase_nilai,
+      'tanggal_waktu':  kuisEntry.tanggal_waktu,
+      'bot-field':      ''
+    });
+    const res = await fetch('/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: params.toString()
+    });
+    if (res.ok) {
+      document.getElementById('kuisSaveStatus').innerHTML =
+        '✅ Hasil tersimpan. <button onclick="downloadKuisCSV()" class="ml-2 underline text-blue-600 text-xs">📥 Unduh CSV</button>';
+    } else {
+      // Tetap simpan lokal meski Netlify Forms gagal (misal: buka dari file://)
+      document.getElementById('kuisSaveStatus').innerHTML =
+        '✅ Tersimpan lokal. <button onclick="downloadKuisCSV()" class="ml-2 underline text-blue-600 text-xs">📥 Unduh CSV</button>';
+    }
+  } catch {
+    document.getElementById('kuisSaveStatus').innerHTML =
+      '✅ Tersimpan lokal. <button onclick="downloadKuisCSV()" class="ml-2 underline text-blue-600 text-xs">📥 Unduh CSV</button>';
+  }
+}
+
+function resetKuis() {
+  document.getElementById('kuisResult').classList.add('hidden');
+  document.getElementById('kuisIdentity').classList.remove('hidden');
+  kuisAnswers = new Array(10).fill(null);
+  kuisCurrentQ = 0;
+}
+
+function showCertificate(name, score, cat) {
+  const area = document.getElementById('certificateArea');
+  area.classList.remove('hidden');
+  area.innerHTML = `
+    <div class="border-4 border-double border-primary-600 rounded-xl p-6 bg-gradient-to-br from-blue-50 to-green-50 max-w-md mx-auto">
+      <p class="text-xs text-gray-500 uppercase tracking-wider">Sertifikat Digital</p>
+      <h4 class="text-lg font-bold text-primary-700 mt-2">🏅 Sertifikat Kelulusan</h4>
+      <p class="text-sm text-gray-600 mt-2">Diberikan kepada:</p>
+      <p class="text-lg font-bold text-gray-800">${name}</p>
+      <p class="text-sm text-gray-600 mt-2">Telah menyelesaikan Kuis Algoritma & Pemrograman</p>
+      <p class="text-sm text-gray-600">dengan nilai <strong>${score}/100</strong> (${cat})</p>
+      <p class="text-xs text-gray-400 mt-4">Ridwan Na'im, S.Kom. • 2026</p>
+    </div>
+  `;
+}
+
+// ============ CONFETTI ============
+function triggerConfetti() {
+  const colors = ['#3b82f6','#10b981','#f59e0b','#ef4444','#8b5cf6','#ec4899'];
+  for (let i = 0; i < 50; i++) {
+    const piece = document.createElement('div');
+    piece.className = 'confetti-piece';
+    piece.style.left = Math.random() * 100 + '%';
+    piece.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+    piece.style.animationDelay = Math.random() * 2 + 's';
+    piece.style.borderRadius = Math.random() > 0.5 ? '50%' : '0';
+    document.body.appendChild(piece);
+    setTimeout(() => piece.remove(), 5000);
+  }
+}
+
+// ============ REFLEKSI ============
+function saveRefleksi() {
+  const r1 = document.getElementById('refleksi1').value;
+  const r2 = document.getElementById('refleksi2').value;
+  const r3 = document.getElementById('refleksi3').value;
+  localStorage.setItem('algo_refleksi', JSON.stringify([r1, r2, r3]));
+  progress.refleksi = true;
+  saveProgress();
+  document.getElementById('refleksiStatus').innerHTML = '<span class="text-green-600">✅ Refleksi berhasil disimpan!</span>';
+}
+
+// ============ TOAST ============
+function showToast(msg) {
+  const toast = document.createElement('div');
+  toast.className = 'fixed bottom-4 right-4 bg-gray-800 text-white px-4 py-3 rounded-lg shadow-lg text-sm z-50 fade-in';
+  toast.textContent = msg;
+  document.body.appendChild(toast);
+  setTimeout(() => toast.remove(), 3000);
+}
+
+// ============ CSV DOWNLOAD (untuk guru) ============
+function downloadKuisCSV() {
+  const data = JSON.parse(localStorage.getItem('algo_kuis_data') || '[]');
+  if (!data.length) { showToast('Belum ada data kuis tersimpan.'); return; }
+  const header = ['Nama Siswa','Kelas','Nilai','Benar','Salah','Persentase','Tanggal & Waktu'];
+  const rows = data.map(d => [
+    `"${d.nama_siswa}"`, `"${d.kelas}"`,
+    d.nilai_kuis, d.jawaban_benar, d.jawaban_salah,
+    d.persentase_nilai + '%',
+    `"${new Date(d.tanggal_waktu).toLocaleString('id-ID')}"`
+  ]);
+  const csv = [header, ...rows].map(r => r.join(',')).join('\n');
+  const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href     = url;
+  a.download = 'rekap-kuis-algoritma-' + new Date().toISOString().slice(0,10) + '.csv';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+// Init
+document.addEventListener('DOMContentLoaded', () => {
+  loadProgress();
+  initGame();
+  lucide.createIcons();
+});
+</script>
+</body>
+</html>
