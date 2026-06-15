@@ -1,0 +1,1820 @@
+<!doctype html>
+<html lang="id" class="h-full">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Multimedia Pembelajaran - Jaringan Komputer &amp; Internet</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { jakarta: ['Plus Jakarta Sans', 'sans-serif'] },
+          colors: {
+            primary: { 50:'#eff6ff',100:'#dbeafe',200:'#bfdbfe',300:'#93c5fd',400:'#60a5fa',500:'#3b82f6',600:'#2563eb',700:'#1d4ed8',800:'#1e40af',900:'#1e3a8a' },
+            accent: { 50:'#ecfdf5',100:'#d1fae5',200:'#a7f3d0',300:'#6ee7b7',400:'#34d399',500:'#10b981',600:'#059669',700:'#047857' }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    * { font-family: 'Plus Jakarta Sans', sans-serif; }
+    html, body { height: 100%; margin: 0; }
+    .fade-in { animation: fadeIn 0.4s ease; }
+    @keyframes fadeIn { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+    @keyframes confetti { 0%{transform:translateY(0) rotate(0);opacity:1} 100%{transform:translateY(100%) rotate(720deg);opacity:0} }
+    .confetti-piece { position:fixed; width:10px; height:10px; top:-10px; animation: confetti 3s ease-out forwards; z-index:9999; }
+    @keyframes bounce { 0%,100%{transform:scale(1)} 50%{transform:scale(1.1)} }
+    .bounce { animation: bounce 0.5s ease; }
+    @keyframes slideRight { from{transform:translateX(-100%);opacity:0} to{transform:translateX(0);opacity:1} }
+    .slide-right { animation: slideRight 0.3s ease; }
+    .nav-item { transition: all 0.2s ease; }
+    .nav-item:hover { transform: translateX(4px); }
+    .nav-item.active { background: linear-gradient(135deg, #3b82f6, #059669); color: white; }
+    .card-hover { transition: all 0.3s ease; }
+    .card-hover:hover { transform: translateY(-4px); box-shadow: 0 12px 24px rgba(0,0,0,0.1); }
+    .progress-fill { transition: width 0.5s ease; }
+    .badge-earned { animation: bounce 0.6s ease; }
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-thumb { background: #93c5fd; border-radius: 3px; }
+    .drag-item { cursor: grab; user-select: none; transition: all 0.2s; }
+    .drag-item:active { cursor: grabbing; }
+    .drag-over { border-color: #3b82f6; background: #eff6ff; }
+    body { box-sizing: border-box; }
+  </style>
+ </head>
+ <body class="h-full bg-gradient-to-br from-blue-50 via-white to-green-50">
+
+  <!-- Netlify Form (Kuis) -->
+  <form name="kuis-hasil" data-netlify="true" netlify-honeypot="bot-field" hidden>
+    <input type="hidden" name="form-name" value="kuis-hasil">
+    <input type="text"   name="nama_siswa">
+    <input type="text"   name="kelas">
+    <input type="number" name="nilai_kuis">
+    <input type="number" name="jawaban_benar">
+    <input type="number" name="jawaban_salah">
+    <input type="number" name="persentase_nilai">
+    <input type="text"   name="tanggal_waktu">
+    <input type="text"   name="bot-field">
+  </form>
+
+  <!-- Netlify Form (Refleksi) -->
+  <form name="refleksi-siswa" data-netlify="true" netlify-honeypot="bot-field" hidden>
+    <input type="hidden" name="form-name" value="refleksi-siswa">
+    <input type="text"   name="nama_siswa">
+    <input type="text"   name="kelas">
+    <textarea            name="refleksi_1"></textarea>
+    <textarea            name="refleksi_2"></textarea>
+    <textarea            name="refleksi_3"></textarea>
+    <input type="text"   name="tanggal_waktu">
+    <input type="text"   name="bot-field">
+  </form>
+
+  <div id="app" class="h-full w-full flex flex-col md:flex-row overflow-hidden">
+
+   <!-- Sidebar -->
+   <nav id="sidebar" class="w-full md:w-64 bg-white shadow-lg md:h-full flex-shrink-0 z-40">
+    <div class="p-4 bg-gradient-to-r from-primary-600 to-accent-600 text-white">
+      <div class="flex items-center justify-between">
+        <div>
+          <h1 class="font-bold text-lg" id="appTitle">Jaringan Komputer &amp; Internet</h1>
+          <p class="text-xs opacity-80">Informatika • Kelas 9 SMP</p>
+        </div>
+        <button id="menuToggle" class="md:hidden p-1 rounded hover:bg-white/20" aria-label="menu">
+          <i data-lucide="menu" class="w-5 h-5"></i>
+        </button>
+      </div>
+    </div>
+
+    <div id="navMenu" class="hidden md:block p-3 space-y-1 overflow-y-auto" style="max-height:calc(100% - 80px)">
+      <button onclick="navigateTo('beranda')" class="nav-item active w-full text-left px-4 py-3 rounded-lg flex items-center gap-3 text-sm font-medium" data-nav="beranda">
+        <i data-lucide="home" class="w-4 h-4"></i> Beranda
+      </button>
+      <button onclick="navigateTo('materi')" class="nav-item w-full text-left px-4 py-3 rounded-lg flex items-center gap-3 text-sm font-medium text-gray-600 hover:bg-gray-100" data-nav="materi">
+        <i data-lucide="book-open" class="w-4 h-4"></i> Materi
+      </button>
+      <button onclick="navigateTo('simulasi')" class="nav-item w-full text-left px-4 py-3 rounded-lg flex items-center gap-3 text-sm font-medium text-gray-600 hover:bg-gray-100" data-nav="simulasi">
+        <i data-lucide="activity" class="w-4 h-4"></i> Simulasi
+      </button>
+      <button onclick="navigateTo('game')" class="nav-item w-full text-left px-4 py-3 rounded-lg flex items-center gap-3 text-sm font-medium text-gray-600 hover:bg-gray-100" data-nav="game">
+        <i data-lucide="gamepad-2" class="w-4 h-4"></i> Game Interaktif
+      </button>
+      <button onclick="navigateTo('kuis')" class="nav-item w-full text-left px-4 py-3 rounded-lg flex items-center gap-3 text-sm font-medium text-gray-600 hover:bg-gray-100" data-nav="kuis">
+        <i data-lucide="clipboard-list" class="w-4 h-4"></i> Kuis
+      </button>
+      <button onclick="navigateTo('refleksi')" class="nav-item w-full text-left px-4 py-3 rounded-lg flex items-center gap-3 text-sm font-medium text-gray-600 hover:bg-gray-100" data-nav="refleksi">
+        <i data-lucide="message-circle" class="w-4 h-4"></i> Refleksi
+      </button>
+
+      <div class="mt-4 p-3 bg-gray-50 rounded-lg">
+        <p class="text-xs font-semibold text-gray-500 mb-2">Progress Belajar</p>
+        <div class="w-full bg-gray-200 rounded-full h-2.5">
+          <div id="progressBar" class="progress-fill bg-gradient-to-r from-primary-500 to-accent-500 h-2.5 rounded-full" style="width:0%"></div>
+        </div>
+        <p class="text-xs text-gray-500 mt-1"><span id="progressText">0</span>% selesai</p>
+      </div>
+
+      <div class="mt-3 p-3 bg-gray-50 rounded-lg">
+        <p class="text-xs font-semibold text-gray-500 mb-2">🏆 Badge</p>
+        <div id="badgeContainer" class="flex flex-wrap gap-1"></div>
+      </div>
+    </div>
+   </nav>
+
+   <!-- Main Content -->
+   <main id="mainContent" class="flex-1 h-full overflow-y-auto p-4 md:p-6">
+
+    <!-- BERANDA -->
+    <section id="page-beranda" class="fade-in max-w-4xl mx-auto">
+      <div class="bg-white rounded-2xl shadow-md p-6 md:p-8 mb-6">
+        <div class="text-center mb-8">
+          <div class="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-primary-500 to-accent-500 rounded-2xl mb-4">
+            <i data-lucide="network" class="w-8 h-8 text-white"></i>
+          </div>
+          <h2 class="text-2xl md:text-3xl font-bold text-gray-800 mb-2">Selamat Datang! 👋</h2>
+          <p class="text-gray-600">Multimedia Pembelajaran Interaktif Informatika</p>
+          <h3 class="text-xl font-bold text-primary-600 mt-2">Jaringan Komputer &amp; Internet</h3>
+        </div>
+
+        <div class="bg-gradient-to-r from-primary-50 to-accent-50 rounded-xl p-6 mb-6">
+          <h4 class="font-bold text-gray-800 mb-3 flex items-center gap-2">
+            <i data-lucide="target" class="w-5 h-5 text-primary-600"></i> Tujuan Pembelajaran
+          </h4>
+          <ul class="space-y-2 text-sm text-gray-700">
+            <li class="flex items-start gap-2"><span class="text-accent-500 mt-0.5">✓</span> Siswa mampu membedakan LAN dan Internet berdasarkan karakteristik &amp; jangkauan.</li>
+            <li class="flex items-start gap-2"><span class="text-accent-500 mt-0.5">✓</span> Siswa mampu memahami komunikasi data pada ponsel dan peran BTS.</li>
+            <li class="flex items-start gap-2"><span class="text-accent-500 mt-0.5">✓</span> Siswa mampu memahami enkripsi &amp; melakukan Caesar Cipher/ROT13 sederhana.</li>
+            <li class="flex items-start gap-2"><span class="text-accent-500 mt-0.5">✓</span> Siswa mampu menerapkan keamanan digital saat berinternet.</li>
+          </ul>
+        </div>
+
+        <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+          <div class="card-hover bg-blue-50 rounded-xl p-4 text-center cursor-pointer" onclick="navigateTo('materi')">
+            <i data-lucide="book-open" class="w-6 h-6 text-primary-600 mx-auto mb-2"></i>
+            <p class="text-xs font-medium text-gray-700">Materi</p>
+          </div>
+          <div class="card-hover bg-cyan-50 rounded-xl p-4 text-center cursor-pointer" onclick="navigateTo('simulasi')">
+            <i data-lucide="activity" class="w-6 h-6 text-cyan-600 mx-auto mb-2"></i>
+            <p class="text-xs font-medium text-gray-700">Simulasi</p>
+          </div>
+          <div class="card-hover bg-purple-50 rounded-xl p-4 text-center cursor-pointer" onclick="navigateTo('game')">
+            <i data-lucide="gamepad-2" class="w-6 h-6 text-purple-600 mx-auto mb-2"></i>
+            <p class="text-xs font-medium text-gray-700">Game</p>
+          </div>
+          <div class="card-hover bg-green-50 rounded-xl p-4 text-center cursor-pointer" onclick="navigateTo('kuis')">
+            <i data-lucide="clipboard-list" class="w-6 h-6 text-accent-600 mx-auto mb-2"></i>
+            <p class="text-xs font-medium text-gray-700">Kuis</p>
+          </div>
+          <div class="card-hover bg-orange-50 rounded-xl p-4 text-center cursor-pointer" onclick="navigateTo('refleksi')">
+            <i data-lucide="message-circle" class="w-6 h-6 text-orange-600 mx-auto mb-2"></i>
+            <p class="text-xs font-medium text-gray-700">Refleksi</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="text-center text-xs text-gray-400 mt-4">
+        Dikembangkan oleh: <strong>Ridwan Na'im, S.Kom.</strong> • Tahun 2026
+      </div>
+    </section>
+
+    <!-- MATERI -->
+    <section id="page-materi" class="fade-in max-w-4xl mx-auto hidden">
+      <div class="bg-white rounded-2xl shadow-md p-6 md:p-8">
+        <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-2">
+          <i data-lucide="book-open" class="w-6 h-6 text-primary-600"></i> Materi Pembelajaran
+        </h2>
+
+        <div class="flex flex-wrap gap-2 mb-6">
+          <button onclick="showMateri(1)" class="materi-tab px-4 py-2 rounded-lg text-sm font-medium bg-primary-600 text-white">1. Jaringan Lokal &amp; Internet</button>
+          <button onclick="showMateri(2)" class="materi-tab px-4 py-2 rounded-lg text-sm font-medium bg-gray-100 text-gray-600 hover:bg-gray-200">2. Komunikasi Data pada Ponsel</button>
+          <button onclick="showMateri(3)" class="materi-tab px-4 py-2 rounded-lg text-sm font-medium bg-gray-100 text-gray-600 hover:bg-gray-200">3. Keamanan Data &amp; Enkripsi</button>
+        </div>
+
+        <!-- MATERI 1 -->
+        <div id="materi-1" class="materi-content fade-in">
+          <h3 class="text-lg font-bold text-primary-700 mb-4">1. Jaringan Lokal dan Internet</h3>
+          <div class="space-y-4">
+            <div class="bg-blue-50 rounded-xl p-5">
+              <h4 class="font-bold text-gray-800 mb-2">📖 Pengertian Jaringan Komputer</h4>
+              <p class="text-sm text-gray-700">Jaringan komputer adalah sekumpulan perangkat yang saling terhubung untuk berbagi data dan sumber daya.</p>
+            </div>
+            <div class="bg-green-50 rounded-xl p-5">
+              <h4 class="font-bold text-gray-800 mb-2">🌐 LAN &amp; Internet</h4>
+              <ul class="text-sm text-gray-700 space-y-1 list-disc list-inside">
+                <li><strong>LAN</strong> (Local Area Network): jangkauan terbatas (misal sekolah/lab/kantor).</li>
+                <li><strong>Internet</strong>: jaringan global yang menghubungkan banyak jaringan di seluruh dunia.</li>
+              </ul>
+            </div>
+            <div class="bg-yellow-50 rounded-xl p-5">
+              <h4 class="font-bold text-gray-800 mb-2">🔌 Jenis Koneksi Internet</h4>
+              <div class="grid md:grid-cols-2 gap-3">
+                <div class="bg-white rounded-lg p-3 border border-yellow-100"><p class="text-sm font-medium">Kabel LAN</p><p class="text-xs text-gray-600">Umumnya stabil &amp; cepat</p></div>
+                <div class="bg-white rounded-lg p-3 border border-yellow-100"><p class="text-sm font-medium">Fiber Optik</p><p class="text-xs text-gray-600">Kecepatan tinggi, jarak jauh</p></div>
+                <div class="bg-white rounded-lg p-3 border border-yellow-100"><p class="text-sm font-medium">Wi-Fi</p><p class="text-xs text-gray-600">Nirkabel, praktis</p></div>
+                <div class="bg-white rounded-lg p-3 border border-yellow-100"><p class="text-sm font-medium">Data Seluler</p><p class="text-xs text-gray-600">Melalui jaringan operator</p></div>
+              </div>
+            </div>
+
+            <div class="bg-purple-50 rounded-xl p-5 border-2 border-purple-200">
+              <h4 class="font-bold text-gray-800 mb-3">🎯 Aktivitas: Drag &amp; Drop Mengelompokkan Contoh</h4>
+              <p class="text-sm text-gray-600 mb-3">Kelompokkan contoh jaringan ke kategori <strong>LAN</strong> atau <strong>Internet</strong>.</p>
+
+              <div class="grid md:grid-cols-2 gap-4">
+                <div class="space-y-2">
+                  <p class="text-sm font-semibold text-primary-700">Kartu Contoh</p>
+                  <div id="lanInternetBank" class="grid grid-cols-1 gap-2"></div>
+                </div>
+                <div class="space-y-2">
+                  <p class="text-sm font-semibold text-gray-700">Drop ke Kategori</p>
+                  <div class="bg-white rounded-xl p-3 border border-gray-200">
+                    <p class="text-sm font-bold text-primary-700 mb-2">LAN</p>
+                    <div id="lanDrop" class="min-h-24 rounded-lg border-2 border-dashed border-primary-200 p-2 flex flex-wrap gap-2"></div>
+                  </div>
+                  <div class="bg-white rounded-xl p-3 border border-gray-200 mt-2">
+                    <p class="text-sm font-bold text-cyan-700 mb-2">Internet</p>
+                    <div id="internetDrop" class="min-h-24 rounded-lg border-2 border-dashed border-cyan-200 p-2 flex flex-wrap gap-2"></div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="flex gap-2 mt-4">
+                <button onclick="resetLANInternetActivity()" class="px-5 py-2 bg-gray-200 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-300">Reset</button>
+                <button onclick="checkLANInternetActivity()" class="px-5 py-2 bg-purple-600 text-white rounded-lg text-sm font-medium hover:bg-purple-700">Cek Jawaban</button>
+              </div>
+              <p id="lanInternetResult" class="mt-3 text-sm font-medium"></p>
+            </div>
+
+            <div class="bg-purple-50 rounded-xl p-5 border-2 border-purple-200">
+              <h4 class="font-bold text-gray-800 mb-3">🎯 Aktivitas: Cocokkan Perangkat &amp; Fungsinya</h4>
+              <p class="text-sm text-gray-600 mb-3">Pasangkan perangkat jaringan berikut dengan fungsi yang benar.</p>
+              <div id="deviceMatchActivity" class="space-y-3"></div>
+              <div class="flex gap-2 mt-4">
+                <button onclick="checkDeviceMatch()" class="px-5 py-2 bg-purple-600 text-white rounded-lg text-sm font-medium hover:bg-purple-700">Cek Jawaban</button>
+              </div>
+              <p id="deviceMatchResult" class="mt-3 text-sm font-medium"></p>
+            </div>
+          </div>
+
+          <div class="flex gap-2 mt-4">
+            <button onclick="showMateri(2)" class="px-6 py-2 bg-primary-600 text-white rounded-lg text-sm font-medium hover:bg-primary-700">Selanjutnya →</button>
+          </div>
+        </div>
+
+        <!-- MATERI 2 -->
+        <div id="materi-2" class="materi-content fade-in hidden">
+          <h3 class="text-lg font-bold text-primary-700 mb-4">2. Komunikasi Data pada Ponsel</h3>
+          <div class="space-y-4">
+            <div class="bg-blue-50 rounded-xl p-5">
+              <h4 class="font-bold text-gray-800 mb-2">📱 Cara Kerja Komunikasi Data pada Smartphone</h4>
+              <p class="text-sm text-gray-700">Data dari ponsel dikirim melalui jaringan seluler menuju infrastruktur operator lalu diteruskan ke internet.</p>
+            </div>
+            <div class="bg-green-50 rounded-xl p-5">
+              <h4 class="font-bold text-gray-800 mb-2">🛰️ Peran BTS</h4>
+              <ul class="text-sm text-gray-700 space-y-1 list-disc list-inside">
+                <li>BTS menghubungkan perangkat pengguna dengan jaringan operator.</li>
+                <li>Pengelolaan koneksi terjadi melalui proses sinyal dan aliran data.</li>
+              </ul>
+            </div>
+            <div class="bg-yellow-50 rounded-xl p-5">
+              <h4 class="font-bold text-gray-800 mb-2">📶 Teknologi 3G, 4G, dan 5G</h4>
+              <div class="grid md:grid-cols-3 gap-3">
+                <div class="bg-white rounded-lg p-3 border border-yellow-100"><p class="text-sm font-medium">3G</p><p class="text-xs text-gray-600">Kinerja menengah</p></div>
+                <div class="bg-white rounded-lg p-3 border border-yellow-100"><p class="text-sm font-medium">4G</p><p class="text-xs text-gray-600">Lebih cepat untuk streaming</p></div>
+                <div class="bg-white rounded-lg p-3 border border-yellow-100"><p class="text-sm font-medium">5G</p><p class="text-xs text-gray-600">Kecepatan tinggi &amp; respons cepat</p></div>
+              </div>
+            </div>
+
+            <div class="bg-purple-50 rounded-xl p-5 border-2 border-purple-200">
+              <h4 class="font-bold text-gray-800 mb-3">🎯 Aktivitas: Pilih Jaringan yang Paling Sesuai</h4>
+              <p class="text-sm text-gray-600 mb-3">Pilih teknologi jaringan seluler yang paling tepat untuk kebutuhan berikut.</p>
+
+              <div id="phoneNetworkPick" class="space-y-3"></div>
+              <button onclick="checkPhoneNetworkPick()" class="mt-2 px-5 py-2 bg-purple-600 text-white rounded-lg text-sm font-medium hover:bg-purple-700">Cek Jawaban</button>
+              <p id="phoneNetworkPickResult" class="mt-3 text-sm font-medium"></p>
+            </div>
+
+            <div class="bg-purple-50 rounded-xl p-5 border-2 border-purple-200">
+              <h4 class="font-bold text-gray-800 mb-3">🎯 Aktivitas: Simulasi Perjalanan Data (Animasi)</h4>
+              <p class="text-sm text-gray-600 mb-3">Klik tombol untuk memutar animasi langkah pengiriman data.</p>
+              <div class="bg-white rounded-xl p-4 border border-purple-100">
+                <ol id="dataJourneySteps" class="space-y-2 text-sm text-gray-700">
+                  <li class="flex items-start gap-2"><span class="font-bold text-primary-600">1.</span><span>Smartphone membuat permintaan data</span></li>
+                  <li class="flex items-start gap-2"><span class="font-bold text-primary-600">2.</span><span>Data melewati BTS (Base Transceiver Station)</span></li>
+                  <li class="flex items-start gap-2"><span class="font-bold text-primary-600">3.</span><span>Data diteruskan ke jaringan operator</span></li>
+                  <li class="flex items-start gap-2"><span class="font-bold text-primary-600">4.</span><span>Data masuk ke internet menuju server</span></li>
+                  <li class="flex items-start gap-2"><span class="font-bold text-primary-600">5.</span><span>Server mengirim balasan ke smartphone</span></li>
+                </ol>
+                <div class="flex gap-2 mt-4">
+                  <button onclick="playDataJourney()" class="px-5 py-2 bg-cyan-600 text-white rounded-lg text-sm font-medium hover:bg-cyan-700">Play</button>
+                  <button onclick="resetDataJourney()" class="px-5 py-2 bg-gray-200 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-300">Reset</button>
+                </div>
+              </div>
+              <p id="dataJourneyResult" class="mt-3 text-sm font-medium"></p>
+            </div>
+          </div>
+
+          <div class="flex gap-2 mt-4">
+            <button onclick="showMateri(1)" class="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-300">← Sebelumnya</button>
+            <button onclick="showMateri(3)" class="px-6 py-2 bg-primary-600 text-white rounded-lg text-sm font-medium hover:bg-primary-700">Selanjutnya →</button>
+          </div>
+        </div>
+
+        <!-- MATERI 3 -->
+        <div id="materi-3" class="materi-content fade-in hidden">
+          <h3 class="text-lg font-bold text-primary-700 mb-4">3. Keamanan Data &amp; Konsep Enkripsi</h3>
+          <div class="space-y-4">
+            <div class="bg-blue-50 rounded-xl p-5">
+              <h4 class="font-bold text-gray-800 mb-2">🛡️ Ancaman Keamanan Data</h4>
+              <ul class="text-sm text-gray-700 space-y-1 list-disc list-inside">
+                <li>Phishing dan penipuan online.</li>
+                <li>Penyerobotan data (data interception).</li>
+                <li>Kebocoran password dan informasi pribadi.</li>
+              </ul>
+            </div>
+            <div class="bg-green-50 rounded-xl p-5">
+              <h4 class="font-bold text-gray-800 mb-2">🔐 Pentingnya Menjaga Password &amp; Data Pribadi</h4>
+              <p class="text-sm text-gray-700">Gunakan password kuat, jangan bagikan kredensial sembarangan, dan waspadai tautan mencurigakan.</p>
+            </div>
+            <div class="bg-yellow-50 rounded-xl p-5">
+              <h4 class="font-bold text-gray-800 mb-2">🧠 Pengertian Enkripsi</h4>
+              <p class="text-sm text-gray-700">Enkripsi adalah proses mengubah pesan agar tidak mudah dibaca tanpa kunci. Dekripsi mengembalikan pesan ke bentuk semula.</p>
+              <div class="mt-3 bg-white rounded-lg p-3 border border-yellow-100 text-sm text-gray-700">
+                <p class="font-semibold">Contoh sederhana:</p>
+                <p><strong>Caesar Cipher</strong>: menggeser huruf dengan nilai <em>shift</em>.</p>
+                <p><strong>ROT13</strong>: pergeseran tetap 13 (khusus alfabet A-Z).</p>
+              </div>
+            </div>
+
+            <div class="bg-purple-50 rounded-xl p-5 border-2 border-purple-200">
+              <h4 class="font-bold text-gray-800 mb-3">🎯 Aktivitas: Enkripsi &amp; Dekripsi Caesar/ROT13</h4>
+              <div class="grid md:grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-1" for="cipherMode">Mode</label>
+                  <select id="cipherMode" class="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:border-purple-400 focus:outline-none">
+                    <option value="caesar">Caesar Cipher (pakai shift)</option>
+                    <option value="rot13">ROT13 (shift = 13)</option>
+                  </select>
+
+                  <div class="mt-3" id="shiftBox">
+                    <label class="block text-sm font-medium text-gray-700 mb-1" for="cipherShift">Shift</label>
+                    <input id="cipherShift" type="number" value="3" min="-25" max="25" class="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:border-purple-400 focus:outline-none">
+                  </div>
+
+                  <label class="block text-sm font-medium text-gray-700 mt-3 mb-1" for="cipherPlain">Pesan Asli</label>
+                  <textarea id="cipherPlain" rows="4" class="w-full px-4 py-3 border-2 border-purple-200 rounded-lg focus:border-purple-400 focus:outline-none resize-none" placeholder="Ketik pesan..."></textarea>
+                </div>
+
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-1">Hasil</label>
+                  <div class="bg-white rounded-xl border border-purple-100 p-3">
+                    <p class="text-xs text-gray-500 mb-1">Enkripsi</p>
+                    <textarea id="cipherEncrypted" rows="4" class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none resize-none" readonly></textarea>
+                    <p class="text-xs text-gray-500 mt-3 mb-1">Dekripsi (cek balik)</p>
+                    <textarea id="cipherDecrypted" rows="4" class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none resize-none" readonly></textarea>
+                  </div>
+                  <div class="flex gap-2 mt-3">
+                    <button onclick="runCipher()" class="px-5 py-2 bg-purple-600 text-white rounded-lg text-sm font-medium hover:bg-purple-700">Proses</button>
+                    <button onclick="resetCipher()" class="px-5 py-2 bg-gray-200 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-300">Reset</button>
+                  </div>
+
+                  <p id="cipherResult" class="mt-3 text-sm font-medium"></p>
+                </div>
+              </div>
+            </div>
+
+            <div class="bg-purple-50 rounded-xl p-5 border-2 border-purple-200">
+              <h4 class="font-bold text-gray-800 mb-3">🎯 Aktivitas: Benar/Salah Praktik Keamanan Digital</h4>
+              <p class="text-sm text-gray-600 mb-3">Tandai pernyataan berikut sebagai <strong>Benar</strong> atau <strong>Salah</strong>.</p>
+              <div id="securityTrueFalse" class="space-y-3"></div>
+              <button onclick="checkSecurityTrueFalse()" class="mt-2 px-5 py-2 bg-purple-600 text-white rounded-lg text-sm font-medium hover:bg-purple-700">Cek Jawaban</button>
+              <p id="securityTrueFalseResult" class="mt-3 text-sm font-medium"></p>
+            </div>
+
+          </div>
+
+          <div class="flex gap-2 mt-4">
+            <button onclick="showMateri(2)" class="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-300">← Sebelumnya</button>
+            <button onclick="markMateriDone()" class="px-6 py-2 bg-accent-600 text-white rounded-lg text-sm font-medium hover:bg-accent-700">✓ Materi Selesai</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- End materi -->
+    </section>
+
+    <!-- SIMULASI -->
+    <section id="page-simulasi" class="fade-in max-w-4xl mx-auto hidden">
+      <div class="bg-white rounded-2xl shadow-md p-6 md:p-8">
+        <h2 class="text-2xl font-bold text-gray-800 mb-2 flex items-center gap-2">
+          <i data-lucide="activity" class="w-6 h-6 text-cyan-600"></i> Simulasi Interaktif
+        </h2>
+        <p class="text-gray-600 text-sm mb-6">Jelajahi simulasi jaringan, komunikasi data, dan enkripsi secara visual.</p>
+
+        <div class="space-y-4">
+          <!-- Simulasi 1 -->
+          <div class="bg-blue-50 rounded-xl p-5">
+            <h3 class="font-bold text-gray-800 mb-3">1) Simulasi Jaringan</h3>
+            <p class="text-sm text-gray-700 mb-3">Susun perangkat sesuai urutan yang umum pada topologi sederhana (LAN kecil).</p>
+
+            <div class="grid md:grid-cols-2 gap-4">
+              <div>
+                <p class="text-sm font-semibold text-gray-700 mb-2">Perangkat (Drag &amp; Drop)</p>
+                <div id="simNetBank" class="space-y-2"></div>
+              </div>
+              <div>
+                <p class="text-sm font-semibold text-gray-700 mb-2">Urutan Jaringan</p>
+                <div id="simNetArea" class="min-h-40 rounded-xl bg-white border border-blue-200 p-3 flex flex-col gap-2"></div>
+              </div>
+            </div>
+            <div class="flex gap-2 mt-4">
+              <button onclick="resetSimNet()" class="px-5 py-2 bg-gray-200 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-300">Reset</button>
+              <button onclick="checkSimNet()" class="px-5 py-2 bg-primary-600 text-white rounded-lg text-sm font-medium hover:bg-primary-700">Cek</button>
+            </div>
+            <p id="simNetResult" class="mt-3 text-sm font-medium"></p>
+          </div>
+
+          <!-- Simulasi 2 -->
+          <div class="bg-cyan-50 rounded-xl p-5">
+            <h3 class="font-bold text-gray-800 mb-3">2) Simulasi Komunikasi Data</h3>
+            <p class="text-sm text-gray-700 mb-3">Animasi pengiriman pesan dari smartphone ke server internet.</p>
+            <div class="bg-white rounded-xl border border-cyan-200 p-4">
+              <div class="flex items-center justify-between gap-2">
+                <div class="text-center flex-1">
+                  <i data-lucide="smartphone" class="w-8 h-8 mx-auto text-cyan-700"></i>
+                  <p class="text-sm font-semibold mt-1">Smartphone</p>
+                </div>
+                <div class="flex-1">
+                  <div id="journeyAnimTrack" class="h-3 bg-cyan-100 rounded-full relative overflow-hidden">
+                    <div id="journeyAnimDot" class="absolute top-0 left-0 h-3 w-3 rounded-full bg-cyan-600" style="transform:translateX(0);"></div>
+                  </div>
+                  <p id="journeyAnimText" class="text-xs text-gray-600 mt-2">Siap mengirim...</p>
+                </div>
+                <div class="text-center flex-1">
+                  <i data-lucide="server" class="w-8 h-8 mx-auto text-cyan-700"></i>
+                  <p class="text-sm font-semibold mt-1">Server</p>
+                </div>
+              </div>
+              <div class="flex gap-2 mt-4">
+                <button onclick="playJourneyAnim()" class="px-5 py-2 bg-cyan-600 text-white rounded-lg text-sm font-medium hover:bg-cyan-700">Kirim</button>
+                <button onclick="resetJourneyAnim()" class="px-5 py-2 bg-gray-200 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-300">Reset</button>
+              </div>
+              <p id="journeyAnimResult" class="mt-3 text-sm font-medium"></p>
+            </div>
+          </div>
+
+          <!-- Simulasi 3 -->
+          <div class="bg-purple-50 rounded-xl p-5 border-2 border-purple-200">
+            <h3 class="font-bold text-gray-800 mb-3">3) Simulasi Enkripsi</h3>
+            <p class="text-sm text-gray-700 mb-3">Enkripsi real-time menggunakan Caesar Cipher. Atur shift dan lihat dekripsi balik.</p>
+
+            <div class="grid md:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1" for="simCipherShift">Shift</label>
+                <input id="simCipherShift" type="number" value="3" min="-25" max="25" class="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:border-purple-400 focus:outline-none">
+
+                <label class="block text-sm font-medium text-gray-700 mt-3 mb-1" for="simCipherPlain">Pesan</label>
+                <textarea id="simCipherPlain" rows="4" class="w-full px-4 py-3 border-2 border-purple-200 rounded-lg focus:border-purple-400 focus:outline-none resize-none" placeholder="Contoh: Informatika SMP 9"></textarea>
+
+                <div class="flex gap-2 mt-3">
+                  <button onclick="runSimCipher()" class="px-5 py-2 bg-purple-600 text-white rounded-lg text-sm font-medium hover:bg-purple-700">Enkripsi</button>
+                  <button onclick="resetSimCipher()" class="px-5 py-2 bg-gray-200 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-300">Reset</button>
+                </div>
+              </div>
+              <div>
+                <div class="bg-white rounded-xl border border-purple-100 p-3">
+                  <p class="text-xs text-gray-500 mb-1">Terenkripsi</p>
+                  <textarea id="simCipherEncrypted" rows="4" class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none resize-none" readonly></textarea>
+                  <p class="text-xs text-gray-500 mt-3 mb-1">Terdekripsi</p>
+                  <textarea id="simCipherDecrypted" rows="4" class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none resize-none" readonly></textarea>
+                </div>
+                <p id="simCipherResult" class="mt-3 text-sm font-medium"></p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex gap-2 mt-6">
+          <button onclick="navigateTo('materi')" class="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-300">← Kembali Materi</button>
+          <button onclick="markSimulationDone()" class="px-6 py-2 bg-accent-600 text-white rounded-lg text-sm font-medium hover:bg-accent-700">✓ Simulasi Selesai</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- GAME -->
+    <section id="page-game" class="fade-in max-w-4xl mx-auto hidden">
+      <div class="bg-white rounded-2xl shadow-md p-6 md:p-8">
+        <h2 class="text-2xl font-bold text-gray-800 mb-2 flex items-center gap-2">
+          <i data-lucide="gamepad-2" class="w-6 h-6 text-accent-600"></i> Petualangan Agen Siber 🎮
+        </h2>
+        <p class="text-gray-600 text-sm mb-6">Selesaikan 4 level. Jawaban benar mendapat poin. Jawaban salah mendapat motivasi.</p>
+
+        <div id="gameArea" class="space-y-4">
+          <div class="flex items-center justify-between mb-2 bg-gradient-to-r from-primary-50 to-accent-50 rounded-lg p-4">
+            <div>
+              <span class="text-sm font-bold text-primary-700" id="gameLevelLabel">Level 1</span>
+              <p class="text-xs text-gray-600" id="gameLevelDesc">Membangun Jaringan</p>
+            </div>
+            <div class="text-right">
+              <span class="text-lg font-bold text-accent-600" id="gameScore">Skor: 0</span>
+            </div>
+          </div>
+
+          <div id="gameContent" class="space-y-2"></div>
+
+          <div class="flex gap-2 mt-4">
+            <button onclick="checkGameAnswer()" id="gameCheckBtn" class="px-6 py-2 bg-accent-600 text-white rounded-lg text-sm font-medium hover:bg-accent-700">Cek Jawaban</button>
+          </div>
+          <p id="gameResult" class="mt-3 text-sm font-medium"></p>
+        </div>
+
+        <div id="gameComplete" class="hidden text-center py-8">
+          <div class="text-5xl mb-4">🏆</div>
+          <h3 class="text-xl font-bold text-gray-800 mb-2">Petualangan Selesai!</h3>
+          <p class="text-gray-600 mb-2">Skor Akhir:</p>
+          <p class="text-4xl font-bold text-accent-600" id="gameFinalScore">0</p>
+          <p class="text-sm text-gray-500 mt-2" id="gameMessage"></p>
+          <button onclick="resetGame()" class="mt-4 px-6 py-2 bg-primary-600 text-white rounded-lg text-sm font-medium hover:bg-primary-700">Main Lagi</button>
+        </div>
+
+        <div class="flex gap-2 mt-6">
+          <button onclick="navigateTo('simulasi')" class="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-300">← Kembali Simulasi</button>
+          <button onclick="markGameDone()" class="px-6 py-2 bg-primary-600 text-white rounded-lg text-sm font-medium hover:bg-primary-700">✓ Game Selesai</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- KUIS -->
+    <section id="page-kuis" class="fade-in max-w-4xl mx-auto hidden">
+      <div class="bg-white rounded-2xl shadow-md p-6 md:p-8">
+        <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-2">
+          <i data-lucide="clipboard-list" class="w-6 h-6 text-purple-600"></i> Kuis Jaringan Komputer &amp; Internet
+        </h2>
+
+        <!-- Identity -->
+        <div id="kuisIdentity">
+          <div class="bg-blue-50 rounded-xl p-6 mb-4">
+            <h3 class="font-bold text-gray-800 mb-4">📋 Isi Identitas Terlebih Dahulu</h3>
+            <div class="space-y-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1" for="namaSiswa">Nama Siswa *</label>
+                <input type="text" id="namaSiswa" class="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:border-primary-500 focus:outline-none" placeholder="Masukkan nama lengkap">
+                <p id="namaError" class="text-red-500 text-xs mt-1 hidden">Silakan isi nama terlebih dahulu.</p>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1" for="kelasSiswa">Kelas *</label>
+                <select id="kelasSiswa" class="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:border-primary-500 focus:outline-none">
+                  <option value="">-- Pilih Kelas --</option>
+                  <option value="Kelas 7A">Kelas 7A</option>
+                  <option value="Kelas 7B">Kelas 7B</option>
+                  <option value="Kelas 8A">Kelas 8A</option>
+                  <option value="Kelas 8B">Kelas 8B</option>
+                  <option value="Kelas 9A">Kelas 9A</option>
+                  <option value="Kelas 9B">Kelas 9B</option>
+                </select>
+                <p id="kelasError" class="text-red-500 text-xs mt-1 hidden">Silakan pilih kelas terlebih dahulu.</p>
+              </div>
+            </div>
+            <button onclick="startKuis()" id="mulaiKuisBtn" class="mt-4 px-6 py-3 bg-purple-600 text-white rounded-lg font-medium hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition" disabled>Mulai Kuis</button>
+          </div>
+        </div>
+
+        <!-- Quiz Area -->
+        <div id="kuisArea" class="hidden">
+          <div class="flex items-center justify-between mb-4">
+            <span class="text-sm font-medium text-gray-600">Soal <span id="kuisNum">1</span>/10</span>
+            <div class="flex-1 mx-4 bg-gray-200 rounded-full h-2">
+              <div id="kuisProgress" class="bg-purple-600 h-2 rounded-full transition-all" style="width:10%"></div>
+            </div>
+          </div>
+
+          <div id="kuisQuestion" class="bg-gray-50 rounded-xl p-5 mb-4"></div>
+          <div id="kuisOptions" class="space-y-2 mb-4"></div>
+
+          <div class="flex justify-between">
+            <button onclick="prevQuestion()" id="prevBtn" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-300 disabled:opacity-50" disabled>← Sebelumnya</button>
+            <button onclick="nextQuestion()" id="nextBtn" class="px-4 py-2 bg-purple-600 text-white rounded-lg text-sm font-medium hover:bg-purple-700">Selanjutnya →</button>
+          </div>
+        </div>
+
+        <!-- Quiz Result -->
+        <div id="kuisResult" class="hidden text-center py-6">
+          <div id="kuisResultIcon" class="text-5xl mb-4">🎉</div>
+          <h3 class="text-xl font-bold text-gray-800 mb-2">Hasil Kuis</h3>
+          <p class="text-gray-600 mb-1" id="kuisResultName"></p>
+          <p class="text-4xl font-bold text-purple-600 my-3" id="kuisResultScore">0</p>
+          <p class="text-lg font-semibold mb-1" id="kuisResultCategory"></p>
+
+          <div class="grid grid-cols-3 gap-4 mt-4 max-w-sm mx-auto">
+            <div class="bg-green-50 rounded-lg p-3"><p class="text-green-600 font-bold text-lg" id="kuisCorrect">0</p><p class="text-xs text-gray-600">Benar</p></div>
+            <div class="bg-red-50 rounded-lg p-3"><p class="text-red-600 font-bold text-lg" id="kuisWrong">0</p><p class="text-xs text-gray-600">Salah</p></div>
+            <div class="bg-blue-50 rounded-lg p-3"><p class="text-blue-600 font-bold text-lg" id="kuisPercent">0%</p><p class="text-xs text-gray-600">Persentase</p></div>
+          </div>
+
+          <div id="certificateArea" class="hidden mt-6"></div>
+          <button onclick="resetKuis()" class="mt-4 px-6 py-2 bg-gray-200 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-300">Kerjakan Ulang</button>
+          <p id="kuisSaveStatus" class="mt-2 text-xs text-gray-500"></p>
+        </div>
+      </div>
+    </section>
+
+    <!-- REFLEKSI -->
+    <section id="page-refleksi" class="fade-in max-w-4xl mx-auto hidden">
+      <div class="bg-white rounded-2xl shadow-md p-6 md:p-8">
+        <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-2">
+          <i data-lucide="message-circle" class="w-6 h-6 text-orange-600"></i> Refleksi Pembelajaran
+        </h2>
+
+        <div class="space-y-5">
+          <div class="bg-blue-50 rounded-xl p-5">
+            <h3 class="font-bold text-gray-800 mb-4 flex items-center gap-2">
+              <i data-lucide="user" class="w-4 h-4 text-primary-600"></i> Identitas Siswa
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1" for="refleksiNama">Nama Siswa *</label>
+                <input type="text" id="refleksiNama" class="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:border-primary-500 focus:outline-none" placeholder="Masukkan nama lengkap">
+                <p id="refleksiNamaError" class="text-red-500 text-xs mt-1 hidden">Silakan isi nama terlebih dahulu.</p>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1" for="refleksiKelas">Kelas *</label>
+                <select id="refleksiKelas" class="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:border-primary-500 focus:outline-none">
+                  <option value="">-- Pilih Kelas --</option>
+                  <option value="Kelas 7A">Kelas 7A</option>
+                  <option value="Kelas 7B">Kelas 7B</option>
+                  <option value="Kelas 8A">Kelas 8A</option>
+                  <option value="Kelas 8B">Kelas 8B</option>
+                  <option value="Kelas 9A">Kelas 9A</option>
+                  <option value="Kelas 9B">Kelas 9B</option>
+                </select>
+                <p id="refleksiKelasError" class="text-red-500 text-xs mt-1 hidden">Silakan pilih kelas terlebih dahulu.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="bg-orange-50 rounded-xl p-5">
+            <label class="block font-bold text-gray-800 mb-2">1. Apa hal baru yang saya pelajari tentang jaringan komputer dan internet?</label>
+            <textarea id="refleksi1" class="w-full px-4 py-3 border-2 border-orange-200 rounded-lg focus:border-orange-400 focus:outline-none resize-none" rows="3" placeholder="Tuliskan jawaban Anda..."></textarea>
+          </div>
+          <div class="bg-yellow-50 rounded-xl p-5">
+            <label class="block font-bold text-gray-800 mb-2">2. Mengapa keamanan data penting saat menggunakan internet?</label>
+            <textarea id="refleksi2" class="w-full px-4 py-3 border-2 border-yellow-200 rounded-lg focus:border-yellow-400 focus:outline-none resize-none" rows="3" placeholder="Tuliskan jawaban Anda..."></textarea>
+          </div>
+          <div class="bg-green-50 rounded-xl p-5">
+            <label class="block font-bold text-gray-800 mb-2">3. Apa manfaat enkripsi dalam kehidupan sehari-hari?</label>
+            <textarea id="refleksi3" class="w-full px-4 py-3 border-2 border-green-200 rounded-lg focus:border-green-400 focus:outline-none resize-none" rows="3" placeholder="Tuliskan jawaban Anda..."></textarea>
+          </div>
+          <div class="bg-slate-50 rounded-xl p-5 border-2 border-slate-200">
+            <label class="block font-bold text-gray-800 mb-2">4. Bagaimana saya dapat menggunakan internet secara aman dan bertanggung jawab?</label>
+            <textarea id="refleksi4" class="w-full px-4 py-3 border-2 border-slate-200 rounded-lg focus:border-slate-300 focus:outline-none resize-none" rows="3" placeholder="Tuliskan jawaban Anda..."></textarea>
+          </div>
+
+          <button onclick="saveRefleksi()" class="px-6 py-3 bg-orange-600 text-white rounded-lg font-medium hover:bg-orange-700 transition">💾 Simpan Refleksi</button>
+          <p id="refleksiStatus" class="text-sm font-medium"></p>
+        </div>
+      </div>
+
+      <div class="text-center text-xs text-gray-400 mt-6 pb-4">
+        <p>Dikembangkan oleh: <strong>Ridwan Na'im, S.Kom.</strong></p>
+        <p>Tahun 2026</p>
+      </div>
+    </section>
+
+   </main>
+
+  </div>
+
+  <script>
+    // ============================================================
+    // KONFIGURASI (opsional) Google Apps Script URL
+    // ============================================================
+    const APPS_SCRIPT_URL = '';
+
+    // ============ STATE ============
+    let currentPage = 'beranda';
+    let progress = { materi:false, simulasi:false, game:false, kuis:false, refleksi:false };
+    let badges = [];
+    let gameLevel = 1;
+    let gameScore = 0;
+    let kuisAnswers = new Array(10).fill(null);
+    let kuisCurrentQ = 0;
+
+    // ============ Load / Save ============
+    function loadProgress(){
+      const saved = localStorage.getItem('jki_progress');
+      if(saved) progress = JSON.parse(saved);
+      const savedBadges = localStorage.getItem('jki_badges');
+      if(savedBadges) badges = JSON.parse(savedBadges);
+      updateProgress();
+      updateBadges();
+
+      const savedRef = localStorage.getItem('jki_refleksi');
+      if(savedRef){
+        const r = JSON.parse(savedRef);
+        setTimeout(()=>{
+          const ids = ['refleksi1','refleksi2','refleksi3','refleksi4','refleksiNama','refleksiKelas'];
+          if(document.getElementById('refleksi1')) document.getElementById('refleksi1').value = r.r1 || '';
+          if(document.getElementById('refleksi2')) document.getElementById('refleksi2').value = r.r2 || '';
+          if(document.getElementById('refleksi3')) document.getElementById('refleksi3').value = r.r3 || '';
+          if(document.getElementById('refleksi4')) document.getElementById('refleksi4').value = r.r4 || '';
+          if(document.getElementById('refleksiNama') && r.nama) document.getElementById('refleksiNama').value = r.nama;
+          if(document.getElementById('refleksiKelas') && r.kelas) document.getElementById('refleksiKelas').value = r.kelas;
+        }, 100);
+      }
+    }
+
+    function saveProgress(){
+      localStorage.setItem('jki_progress', JSON.stringify(progress));
+      localStorage.setItem('jki_badges', JSON.stringify(badges));
+      updateProgress();
+      updateBadges();
+    }
+
+    function updateProgress(){
+      const total = Object.values(progress).filter(Boolean).length;
+      const pct = Math.round((total / 5) * 100);
+      const bar = document.getElementById('progressBar');
+      const txt = document.getElementById('progressText');
+      if(bar) bar.style.width = pct + '%';
+      if(txt) txt.textContent = pct;
+    }
+
+    function updateBadges(){
+      const container = document.getElementById('badgeContainer');
+      if(!container) return;
+      const allBadges = [
+        { id:'lan', label:'🧩 Ahli Jaringan', color:'bg-blue-100' },
+        { id:'internet', label:'🌐 Ahli Internet', color:'bg-cyan-100' },
+        { id:'komunikasi', label:'📡 Ahli Komunikasi Data', color:'bg-green-100' },
+        { id:'keamanan', label:'🛡️ Ahli Keamanan Siber', color:'bg-yellow-100' },
+        { id:'master', label:'🏆 Master Jaringan Komputer & Internet', color:'bg-purple-100' }
+      ];
+      container.innerHTML = allBadges.map(b=>{
+        const earned = badges.includes(b.id);
+        return `<span class="inline-block px-2 py-1 rounded text-xs ${earned ? b.color + ' badge-earned' : 'bg-gray-100 opacity-50'}">${b.label}</span>`;
+      }).join('');
+    }
+
+    function addBadge(id){
+      if(!badges.includes(id)){
+        badges.push(id);
+        saveProgress();
+      }
+    }
+
+    // ============ NAVIGATION ============
+    function navigateTo(page){
+      currentPage = page;
+      document.querySelectorAll('[id^="page-"]').forEach(el=>el.classList.add('hidden'));
+      const target = document.getElementById('page-' + page);
+      if(target) target.classList.remove('hidden');
+
+      document.querySelectorAll('[data-nav]').forEach(el=>{
+        el.classList.remove('active');
+        el.classList.add('text-gray-600','hover:bg-gray-100');
+      });
+      const active = document.querySelector(`[data-nav="${page}"]`);
+      if(active){ active.classList.add('active'); active.classList.remove('text-gray-600','hover:bg-gray-100'); }
+
+      if(window.innerWidth < 768){
+        document.getElementById('navMenu').classList.add('hidden');
+      }
+      document.getElementById('mainContent').scrollTop = 0;
+
+      // auto isi identitas refleksi dari kuis
+      if(page === 'refleksi'){
+        const namaS = document.getElementById('namaSiswa')?.value.trim();
+        const kelasS = document.getElementById('kelasSiswa')?.value;
+        const rNama = document.getElementById('refleksiNama');
+        const rKelas = document.getElementById('refleksiKelas');
+        if(namaS && rNama && !rNama.value) rNama.value = namaS;
+        if(kelasS && rKelas && !rKelas.value) rKelas.value = kelasS;
+      }
+    }
+
+    document.getElementById('menuToggle').addEventListener('click', ()=>{
+      document.getElementById('navMenu').classList.toggle('hidden');
+    });
+
+    // ============ MATERI ============
+    function showMateri(num){
+      document.querySelectorAll('.materi-content').forEach(el=>el.classList.add('hidden'));
+      const el = document.getElementById('materi-' + num);
+      if(el) el.classList.remove('hidden');
+
+      document.querySelectorAll('.materi-tab').forEach((b,i)=>{
+        const idx = i+1;
+        if(idx === num){
+          b.className = 'materi-tab px-4 py-2 rounded-lg text-sm font-medium bg-primary-600 text-white';
+        }else{
+          b.className = 'materi-tab px-4 py-2 rounded-lg text-sm font-medium bg-gray-100 text-gray-600 hover:bg-gray-200';
+        }
+      });
+
+      if(num === 1){
+        initLANInternetActivity();
+        initDeviceMatchActivity();
+      }
+      if(num === 2){
+        initPhoneNetworkPick();
+        resetDataJourney();
+      }
+      if(num === 3){
+        initSecurityTrueFalseActivity();
+        initCipherUI();
+      }
+    }
+
+    function markMateriDone(){
+      progress.materi = true;
+      saveProgress();
+      showToast('✅ Materi selesai! Lanjut ke Simulasi.');
+      if(progress.simulasi && progress.game && progress.kuis) addBadge('master');
+      navigateTo('simulasi');
+    }
+
+    // ============ Aktivitas Materi 1: LAN/Internet drag-drop ============
+    const lanInternetBankItems = [
+      { text:'Laboratorium komputer di sekolah', cat:'LAN' },
+      { text:'Wi‑Fi kampus', cat:'LAN' },
+      { text:'Komputer ke server lokal (printer network)', cat:'LAN' },
+      { text:'Mengakses Google lewat browser', cat:'Internet' },
+      { text:'Mengirim email ke alamat di luar sekolah', cat:'Internet' },
+      { text:'Streaming video YouTube', cat:'Internet' },
+    ];
+    let lanInternetCurrentBank = [];
+
+    function initLANInternetActivity(){
+      lanInternetCurrentBank = [...lanInternetBankItems];
+      // shuffle
+      lanInternetCurrentBank.sort(()=>Math.random()-0.5);
+      renderLANInternetBank();
+      resetLANInternetActivity();
+    }
+
+    function renderLANInternetBank(){
+      const bank = document.getElementById('lanInternetBank');
+      if(!bank) return;
+      bank.innerHTML = lanInternetCurrentBank.map((it,idx)=>`
+        <div class="drag-item inline-flex items-center gap-2 bg-white rounded-lg p-2 border border-gray-200" draggable="true" data-item-idx="${idx}" data-cat="${it.cat}">
+          <span class="text-gray-400 font-bold">${idx+1}</span>
+          <span class="text-sm">${it.text}</span>
+        </div>
+      `).join('');
+
+      const items = bank.querySelectorAll('.drag-item');
+      items.forEach(item=>{
+        item.addEventListener('dragstart', (e)=>{
+          e.dataTransfer.setData('text/plain', item.getAttribute('data-item-idx'));
+          item.style.opacity = '0.5';
+        });
+        item.addEventListener('dragend', ()=>{ item.style.opacity='1'; });
+      });
+    }
+
+    function resetLANInternetActivity(){
+      const lanDrop = document.getElementById('lanDrop');
+      const internetDrop = document.getElementById('internetDrop');
+      if(!lanDrop || !internetDrop) return;
+      lanDrop.innerHTML = '';
+      internetDrop.innerHTML = '';
+      // re-render bank to bring items back
+      renderLANInternetBank();
+      const result = document.getElementById('lanInternetResult');
+      if(result) result.textContent='';
+      setupDropZones();
+    }
+
+    function setupDropZones(){
+      const lanDrop = document.getElementById('lanDrop');
+      const internetDrop = document.getElementById('internetDrop');
+      const zones = [lanDrop, internetDrop];
+      const expected = { lanDrop:'LAN', internetDrop:'Internet' };
+
+      zones.forEach(zone=>{
+        if(!zone) return;
+        zone.addEventListener('dragover', (e)=>{ e.preventDefault(); zone.classList.add('drag-over'); });
+        zone.addEventListener('dragleave', ()=>{ zone.classList.remove('drag-over'); });
+        zone.addEventListener('drop', (e)=>{
+          e.preventDefault();
+          zone.classList.remove('drag-over');
+          const idx = parseInt(e.dataTransfer.getData('text/plain'));
+          const item = lanInternetCurrentBank[idx];
+          if(!item) return;
+          const chip = document.createElement('div');
+          chip.className = 'bg-white rounded-lg px-3 py-2 border border-gray-200 text-sm';
+          chip.textContent = item.text;
+          chip.setAttribute('data-cat', item.cat);
+          chip.setAttribute('data-text', item.text);
+          zone.appendChild(chip);
+          // remove from bank visually
+          const bankItem = document.querySelector(`.drag-item[data-item-idx="${idx}"]`);
+          if(bankItem) bankItem.remove();
+        });
+      });
+    }
+
+    function checkLANInternetActivity(){
+      const lanDrop = document.getElementById('lanDrop');
+      const internetDrop = document.getElementById('internetDrop');
+      const lanChips = [...lanDrop.querySelectorAll('[data-text]')].map(x=>x.getAttribute('data-text'));
+      const internetChips = [...internetDrop.querySelectorAll('[data-text]')].map(x=>x.getAttribute('data-text'));
+
+      const correctLan = ['Laboratorium komputer di sekolah','Wi‑Fi kampus','Komputer ke server lokal (printer network)'];
+      const correctInternet = ['Mengakses Google lewat browser','Mengirim email ke alamat di luar sekolah','Streaming video YouTube'];
+
+      const okLan = JSON.stringify([...lanChips].sort()) === JSON.stringify([...correctLan].sort());
+      const okInt = JSON.stringify([...internetChips].sort()) === JSON.stringify([...correctInternet].sort());
+
+      const res = document.getElementById('lanInternetResult');
+      if(okLan && okInt){
+        res.innerHTML = '<span class="text-green-600 font-semibold">🎉 Benar! LAN dan Internet sudah dikelompokkan tepat.</span>';
+        addBadge('lan');
+        addBadge('internet');
+      }else{
+        res.innerHTML = '<span class="text-orange-600 font-semibold">💪 Belum tepat. Coba periksa kategori LAN dan Internet.</span>';
+      }
+    }
+
+    // ============ Aktivitas Materi 1: Match perangkat & fungsi ============
+    const deviceFunctions = [
+      { device:'Router', func:'Menghubungkan jaringan berbeda dan mengarahkan paket data' },
+      { device:'Switch', func:'Menghubungkan perangkat dalam LAN dan meneruskan frame' },
+      { device:'Access Point', func:'Menyediakan koneksi Wi‑Fi dalam jaringan nirkabel' },
+      { device:'Modem', func:'Mengubah sinyal dari ISP agar dapat dipakai perangkat' },
+      { device:'Kabel UTP', func:'Media transmisi data melalui kabel tembaga' }
+    ];
+
+    function initDeviceMatchActivity(){
+      const container = document.getElementById('deviceMatchActivity');
+      if(!container) return;
+      const funcs = [...deviceFunctions.map(x=>x.func)].sort(()=>Math.random()-0.5);
+      container.innerHTML = deviceFunctions.map((row,idx)=>{
+        const opts = [...funcs].sort(()=>Math.random()-0.5);
+        return `
+          <div class="flex items-center gap-3">
+            <span class="font-medium text-sm w-28">${row.device}</span>
+            <select class="device-match-select flex-1 px-3 py-2 border-2 border-gray-200 rounded-lg text-sm focus:border-purple-400 focus:outline-none" data-idx="${idx}">
+              <option value="">-- Pilih fungsi --</option>
+              ${opts.map(o=>`<option value="${o}">${o}</option>`).join('')}
+            </select>
+          </div>
+        `;
+      }).join('');
+      const r = document.getElementById('deviceMatchResult');
+      if(r) r.textContent='';
+    }
+
+    function checkDeviceMatch(){
+      const selects = document.querySelectorAll('.device-match-select');
+      let correct = 0;
+      selects.forEach(sel=>{
+        const idx = parseInt(sel.dataset.idx);
+        if(sel.value === deviceFunctions[idx].func){ correct++; sel.style.borderColor = '#10b981'; }
+        else { sel.style.borderColor = '#ef4444'; }
+      });
+      const res = document.getElementById('deviceMatchResult');
+      if(correct === deviceFunctions.length){
+        res.innerHTML = '<span class="text-green-600 font-semibold">🎉 Semua pasangan benar!</span>';
+        addBadge('lan');
+      }else{
+        res.innerHTML = `<span class="text-orange-600 font-semibold">💪 ${correct}/${deviceFunctions.length} benar. Coba lagi.</span>`;
+      }
+    }
+
+    // ============ Aktivitas Materi 2: Phone network pick ============
+    const phonePickQuestions = [
+      { need:'Mengirim pesan chat singkat (teks)', ans:'4G' },
+      { need:'Video call saat perjalanan', ans:'4G' },
+      { need:'Streaming game online realtime', ans:'5G' }
+    ];
+
+    function initPhoneNetworkPick(){
+      const container = document.getElementById('phoneNetworkPick');
+      if(!container) return;
+      const options = ['3G','4G','5G'];
+      container.innerHTML = phonePickQuestions.map((it,idx)=>{
+        const qname = 'phonePick'+idx;
+        return `
+          <div class="bg-white rounded-lg border border-purple-100 p-3">
+            <p class="text-sm font-semibold text-gray-800 mb-2">Kebutuhan: ${it.need}</p>
+            <div class="space-y-2">
+              ${options.map(o=>{
+                return `
+                  <label class="flex items-center gap-3 p-2 rounded-lg border border-transparent hover:bg-purple-50 cursor-pointer">
+                    <input type="radio" name="${qname}" value="${o}">
+                    <span class="text-sm">${o}</span>
+                  </label>
+                `;
+              }).join('')}
+            </div>
+          </div>
+        `;
+      }).join('');
+      const res = document.getElementById('phoneNetworkPickResult');
+      if(res) res.textContent='';
+    }
+
+    function checkPhoneNetworkPick(){
+      let correct = 0;
+      phonePickQuestions.forEach((it,idx)=>{
+        const sel = document.querySelector(`input[name="phonePick${idx}"]:checked`);
+        if(sel && sel.value === it.ans) correct++;
+      });
+      const res = document.getElementById('phoneNetworkPickResult');
+      if(correct === phonePickQuestions.length){
+        res.innerHTML = '<span class="text-green-600 font-semibold">🎉 Tepat! Pilihan jaringan sesuai kebutuhan.</span>';
+        addBadge('komunikasi');
+      }else{
+        res.innerHTML = `<span class="text-orange-600 font-semibold">💪 ${correct}/${phonePickQuestions.length} benar. Coba lagi.</span>`;
+      }
+    }
+
+    // Data Journey animation (simple)
+    let dataJourneyTimer = null;
+    function resetDataJourney(){
+      if(dataJourneyTimer) clearInterval(dataJourneyTimer);
+      dataJourneyTimer = null;
+      const steps = document.querySelectorAll('#dataJourneySteps li');
+      steps.forEach(li=>{ li.style.background=''; li.style.borderRadius=''; li.style.padding=''; li.style.border=''; });
+      const res = document.getElementById('dataJourneyResult');
+      if(res) res.textContent='';
+    }
+
+    function playDataJourney(){
+      resetDataJourney();
+      const steps = [...document.querySelectorAll('#dataJourneySteps li')];
+      const resText = document.getElementById('dataJourneyResult');
+      let i = 0;
+      resText && (resText.textContent = '');
+      steps.forEach((li)=>{ li.classList.remove('bounce'); });
+
+      dataJourneyTimer = setInterval(()=>{
+        if(i >= steps.length){
+          clearInterval(dataJourneyTimer);
+          dataJourneyTimer = null;
+          if(resText) resText.innerHTML = '<span class="text-green-600 font-semibold">✅ Simulasi selesai: data sudah sampai ke server dan kembali.</span>';
+          return;
+        }
+        const li = steps[i];
+        li.style.background = i===steps.length-1 ? '#d1fae5' : '#eff6ff';
+        li.style.border = '1px solid rgba(59,130,246,0.15)';
+        li.style.padding = '8px 10px';
+        li.classList.add('bounce');
+        i++;
+      }, 650);
+    }
+
+    // ============ Aktivitas Materi 3: Cipher UI ============
+    function initCipherUI(){
+      const mode = document.getElementById('cipherMode');
+      const shiftBox = document.getElementById('shiftBox');
+      const plain = document.getElementById('cipherPlain');
+      const enc = document.getElementById('cipherEncrypted');
+      const dec = document.getElementById('cipherDecrypted');
+      const res = document.getElementById('cipherResult');
+
+      function updateShiftVisibility(){
+        if(mode.value === 'rot13'){
+          shiftBox.classList.add('hidden');
+        }else{
+          shiftBox.classList.remove('hidden');
+        }
+      }
+
+      updateShiftVisibility();
+      mode.onchange = ()=>{ updateShiftVisibility(); runCipher(); };
+
+      if(plain.value.trim().length === 0){
+        plain.value = 'Pesan rahasia';
+      }
+      runCipher();
+    }
+
+    function caesarCipher(text, shift){
+      const s = ((shift % 26) + 26) % 26;
+      return text.replace(/[a-z]/gi, (ch)=>{
+        const base = ch>='a' && ch<='z' ? 'a' : 'A';
+        const code = ch.charCodeAt(0) - base.charCodeAt(0);
+        const newCode = (code + s) % 26;
+        return String.fromCharCode(base.charCodeAt(0) + newCode);
+      });
+    }
+
+    function runCipher(){
+      const mode = document.getElementById('cipherMode').value;
+      const shiftInput = document.getElementById('cipherShift');
+      const plain = document.getElementById('cipherPlain').value;
+      const enc = document.getElementById('cipherEncrypted');
+      const dec = document.getElementById('cipherDecrypted');
+      const res = document.getElementById('cipherResult');
+
+      const shift = mode === 'rot13' ? 13 : parseInt(shiftInput.value || '0', 10);
+      const encrypted = caesarCipher(plain, shift);
+      const decrypted = caesarCipher(encrypted, -shift);
+
+      enc.value = encrypted;
+      dec.value = decrypted;
+
+      const ok = decrypted.trim() === plain.trim();
+      if(ok){
+        res.innerHTML = '<span class="text-green-600 font-semibold">🎉 Enkripsi &amp; dekripsi berhasil.</span>';
+        // badge learning
+        addBadge('keamanan');
+      }else{
+        res.innerHTML = '<span class="text-orange-600 font-semibold">💪 Coba ulang input atau shift.</span>';
+      }
+    }
+
+    function resetCipher(){
+      document.getElementById('cipherPlain').value = 'Pesan rahasia';
+      document.getElementById('cipherMode').value = 'caesar';
+      document.getElementById('cipherShift').value = 3;
+      initCipherUI();
+    }
+
+    // ============ Aktivitas Materi 3: Security True/False ============
+    const securityStatements = [
+      { text:'Menggunakan password yang sama untuk semua akun adalah praktik yang aman.', ans:false },
+      { text:'Tidak membagikan kata sandi ke siapa pun meningkatkan keamanan.', ans:true },
+      { text:'Memverifikasi alamat URL sebelum login membantu menghindari phishing.', ans:true },
+      { text:'Mengklik tautan mencurigakan selalu aman.', ans:false },
+      { text:'Mengaktifkan verifikasi dua langkah (2FA) dapat mengurangi risiko akses ilegal.', ans:true }
+    ];
+
+    let securityAnswered = [];
+
+    function initSecurityTrueFalseActivity(){
+      const container = document.getElementById('securityTrueFalse');
+      if(!container) return;
+      securityAnswered = new Array(securityStatements.length).fill(null);
+      container.innerHTML = securityStatements.map((st,idx)=>{
+        return `
+          <div class="bg-white rounded-lg border border-purple-100 p-3">
+            <p class="text-sm font-semibold text-gray-800 mb-3">${idx+1}. ${st.text}</p>
+            <div class="flex gap-3">
+              <label class="flex items-center gap-2 p-2 rounded-lg border border-transparent hover:bg-purple-50 cursor-pointer">
+                <input type="radio" name="secTf${idx}" value="true"> <span class="text-sm">Benar</span>
+              </label>
+              <label class="flex items-center gap-2 p-2 rounded-lg border border-transparent hover:bg-purple-50 cursor-pointer">
+                <input type="radio" name="secTf${idx}" value="false"> <span class="text-sm">Salah</span>
+              </label>
+            </div>
+          </div>
+        `;
+      }).join('');
+      const res = document.getElementById('securityTrueFalseResult');
+      if(res) res.textContent='';
+    }
+
+    function checkSecurityTrueFalse(){
+      let correct = 0;
+      securityStatements.forEach((st,idx)=>{
+        const sel = document.querySelector(`input[name="secTf${idx}"]:checked`);
+        if(!sel) return;
+        const val = sel.value === 'true';
+        if(val === st.ans) correct++;
+      });
+      const res = document.getElementById('securityTrueFalseResult');
+      if(correct === securityStatements.length){
+        res.innerHTML = '<span class="text-green-600 font-semibold">🎉 Hebat! Semua jawaban tepat.</span>';
+        addBadge('keamanan');
+      }else{
+        res.innerHTML = `<span class="text-orange-600 font-semibold">💪 ${correct}/${securityStatements.length} benar. Coba lagi.</span>`;
+      }
+    }
+
+    // ============ SIMULASI ============
+    // Simulasi 1: susun perangkat
+    const simNetSequenceCorrect = ['Komputer','Switch','Router','Internet'];
+    let simNetBankItems = ['Komputer','Switch','Router','Internet'];
+
+    function initSimNet(){
+      const bank = document.getElementById('simNetBank');
+      const area = document.getElementById('simNetArea');
+      if(!bank || !area) return;
+      simNetBankItems = ['Komputer','Switch','Router','Internet'];
+      bank.innerHTML = simNetBankItems.sort(()=>Math.random()-0.5).map((t,idx)=>`
+        <div class="drag-item bg-white rounded-lg p-3 border border-gray-200" draggable="true" data-item="${t}">
+          <div class="text-sm font-semibold text-gray-800">${t}</div>
+          <div class="text-xs text-gray-600">Drag</div>
+        </div>
+      `).join('');
+      area.innerHTML = '';
+
+      bank.querySelectorAll('.drag-item').forEach(it=>{
+        it.addEventListener('dragstart', (e)=>{
+          e.dataTransfer.setData('text/plain', it.getAttribute('data-item'));
+          it.style.opacity = '0.5';
+        });
+        it.addEventListener('dragend', ()=>{ it.style.opacity='1'; });
+      });
+
+      area.addEventListener('dragover',(e)=>{ e.preventDefault(); area.classList.add('drag-over'); });
+      area.addEventListener('dragleave',()=>area.classList.remove('drag-over'));
+      area.addEventListener('drop',(e)=>{
+        e.preventDefault(); area.classList.remove('drag-over');
+        const item = e.dataTransfer.getData('text/plain');
+        const chip = document.createElement('div');
+        chip.className = 'bg-white rounded-lg p-3 border border-blue-200 flex items-center justify-between';
+        chip.innerHTML = `<span class="text-sm font-semibold text-gray-800">${item}</span><span class="text-xs text-gray-500">Urutan</span>`;
+        area.appendChild(chip);
+        // remove from bank if exists
+        const bankItem = document.querySelector(`.drag-item[data-item="${item}"]`);
+        if(bankItem) bankItem.remove();
+      });
+    }
+
+    function resetSimNet(){
+      initSimNet();
+      const res = document.getElementById('simNetResult');
+      if(res) res.textContent='';
+    }
+
+    function checkSimNet(){
+      const area = document.getElementById('simNetArea');
+      const items = [...area.querySelectorAll('div>span:first-child')].map(x=>x.textContent);
+      // fallback if structure differs
+      let seq = items;
+      if(seq.length !== simNetSequenceCorrect.length){
+        seq = [...area.querySelectorAll('div')].map(d=>d.textContent.trim()).filter(t=>t.length>0);
+      }
+      const ok = JSON.stringify(seq) === JSON.stringify(simNetSequenceCorrect);
+      const res = document.getElementById('simNetResult');
+      if(ok){
+        res.innerHTML = '<span class="text-green-600 font-semibold">✅ Jaringan tersusun benar!</span>';
+        addBadge('lan');
+      }else{
+        res.innerHTML = '<span class="text-orange-600 font-semibold">💪 Urutan belum tepat. Perhatikan alur dari perangkat hingga internet.</span>';
+      }
+    }
+
+    // Simulasi 2: animasi journey
+    let journeyAnimTimer = null;
+    let journeyAnimStep = 0;
+    const journeyMsgs = ['Mencari server...','Mengirim data...','Data lewat jaringan operator...','Sampai ke server...','Server merespons...'];
+
+    function resetJourneyAnim(){
+      if(journeyAnimTimer) clearInterval(journeyAnimTimer);
+      journeyAnimTimer = null;
+      journeyAnimStep = 0;
+      const dot = document.getElementById('journeyAnimDot');
+      const track = document.getElementById('journeyAnimTrack');
+      const text = document.getElementById('journeyAnimText');
+      const res = document.getElementById('journeyAnimResult');
+      if(dot) dot.style.transform = 'translateX(0)';
+      if(text) text.textContent = 'Siap mengirim...';
+      if(res) res.textContent='';
+    }
+
+    function playJourneyAnim(){
+      resetJourneyAnim();
+      const dot = document.getElementById('journeyAnimDot');
+      const track = document.getElementById('journeyAnimTrack');
+      const text = document.getElementById('journeyAnimText');
+      const res = document.getElementById('journeyAnimResult');
+      const width = track.getBoundingClientRect().width;
+      const maxX = Math.max(0,width - 12);
+      journeyAnimTimer = setInterval(()=>{
+        journeyAnimStep++;
+        const idx = Math.min(journeyAnimStep, journeyMsgs.length);
+        if(text) text.textContent = journeyMsgs[idx-1] || 'Selesai!';
+        const frac = journeyAnimStep / journeyMsgs.length;
+        const x = maxX * frac;
+        if(dot) dot.style.transform = `translateX(${x}px)`;
+        if(journeyAnimStep >= journeyMsgs.length){
+          clearInterval(journeyAnimTimer);
+          journeyAnimTimer = null;
+          if(res) res.innerHTML = '<span class="text-green-600 font-semibold">🎉 Simulasi selesai: data berhasil dikirim dan diterima.</span>';
+          addBadge('komunikasi');
+        }
+      }, 650);
+    }
+
+    // Simulasi 3: cipher real-time
+    function resetSimCipher(){
+      document.getElementById('simCipherShift').value = 3;
+      document.getElementById('simCipherPlain').value = '';
+      document.getElementById('simCipherEncrypted').value = '';
+      document.getElementById('simCipherDecrypted').value = '';
+      const res = document.getElementById('simCipherResult');
+      if(res) res.textContent='';
+    }
+
+    function runSimCipher(){
+      const shift = parseInt(document.getElementById('simCipherShift').value || '0', 10);
+      const plain = document.getElementById('simCipherPlain').value;
+      const enc = caesarCipher(plain, shift);
+      const dec = caesarCipher(enc, -shift);
+      document.getElementById('simCipherEncrypted').value = enc;
+      document.getElementById('simCipherDecrypted').value = dec;
+      const res = document.getElementById('simCipherResult');
+      if(dec.trim() === plain.trim()){
+        res.innerHTML = '<span class="text-green-600 font-semibold">✅ Enkripsi &amp; dekripsi cocok.</span>';
+        addBadge('keamanan');
+      }else{
+        res.innerHTML = '<span class="text-orange-600 font-semibold">💪 Coba lagi.</span>';
+      }
+    }
+
+    function markSimulationDone(){
+      progress.simulasi = true;
+      saveProgress();
+      showToast('✅ Simulasi selesai! Lanjut ke Game.');
+      navigateTo('game');
+    }
+
+    // ============ GAME ============
+    const gameLevels = [
+      {
+        title:'Level 1',
+        desc:'Membangun Jaringan',
+        type:'sort',
+        steps:['Komputer','Switch','Router','Internet'],
+        correctOrder:['Komputer','Switch','Router','Internet']
+      },
+      {
+        title:'Level 2',
+        desc:'Misi Internet Cepat',
+        type:'choice',
+        question:'Kebutuhan streaming video HD stabil biasanya paling tepat menggunakan...',
+        options:['3G','4G','5G','Dial-up'],
+        correctIndex:2 // 5G
+      },
+      {
+        title:'Level 3',
+        desc:'Detektif Data Seluler',
+        type:'choice',
+        question:'Aktivitas gaming online realtime paling cocok menggunakan jaringan...',
+        options:['3G','4G','5G','Hanya Wi-Fi'],
+        correctIndex:2 // 5G
+      },
+      {
+        title:'Level 4',
+        desc:'Pecahkan Kode Rahasia',
+        type:'cipher',
+        prompt:'Enkripsi teks "CAT" dengan Caesar shift 2. Hasilnya adalah... (tanpa tanda apapun)',
+        correct:'ECV'
+      }
+    ];
+
+    let gameStepOrder = [];
+
+    function initGame(){
+      const level = gameLevels[gameLevel-1];
+      document.getElementById('gameLevelLabel').textContent = level.title;
+      document.getElementById('gameLevelDesc').textContent = level.desc;
+      document.getElementById('gameScore').textContent = 'Skor: ' + gameScore;
+      document.getElementById('gameResult').textContent = '';
+
+      document.getElementById('gameArea').classList.remove('hidden');
+      document.getElementById('gameComplete').classList.add('hidden');
+
+      const container = document.getElementById('gameContent');
+      if(level.type === 'sort'){
+        gameStepOrder = [...Array(level.steps.length).keys()].sort(()=>Math.random()-0.5);
+        renderGameSort(container, level);
+      }else if(level.type === 'choice'){
+        container.innerHTML = `
+          <p class="font-medium text-sm mb-3">${level.question}</p>
+          <div class="space-y-2">
+            ${level.options.map((opt,i)=>`
+              <label class="flex items-start gap-3 p-3 bg-gray-50 rounded-lg cursor-pointer hover:bg-blue-50 border-2 border-transparent">
+                <input type="radio" name="gameChoice" value="${i}" class="mt-1">
+                <span class="text-sm">${opt}</span>
+              </label>
+            `).join('')}
+          </div>
+        `;
+      }else{
+        container.innerHTML = `
+          <p class="font-medium text-sm mb-3">${level.prompt}</p>
+          <div class="flex gap-2 items-center">
+            <input id="gameCipherInput" type="text" class="flex-1 px-4 py-2 border-2 border-gray-200 rounded-lg focus:border-accent-500 outline-none" placeholder="Jawaban...">
+          </div>
+          <p class="text-xs text-gray-500 mt-2">Catatan: huruf besar/kecil tidak memengaruhi.</p>
+        `;
+      }
+
+      // default
+      const choices = document.querySelector('input[name="gameChoice"]');
+      if(choices) choices.checked = false;
+    }
+
+    function renderGameSort(container, level){
+      container.innerHTML = gameStepOrder.map((idx,pos)=>`
+        <div class="drag-item flex items-center gap-2 bg-gray-50 rounded-lg p-3 border-2 border-gray-200" draggable="true" data-pos="${pos}">
+          <span class="text-gray-400 font-bold text-sm">${pos+1}.</span>
+          <span class="text-sm">${level.steps[idx]}</span>
+          <span class="ml-auto text-gray-300">⋮⋮</span>
+        </div>
+      `).join('');
+      const items = container.querySelectorAll('.drag-item');
+      let dragIdx = null;
+      items.forEach(item=>{
+        item.addEventListener('dragstart', ()=>{ dragIdx = parseInt(item.dataset.pos); item.style.opacity='0.5'; });
+        item.addEventListener('dragend', ()=>{ item.style.opacity='1'; });
+        item.addEventListener('dragover', e=>{ e.preventDefault(); item.classList.add('drag-over'); });
+        item.addEventListener('dragleave', ()=>{ item.classList.remove('drag-over'); });
+        item.addEventListener('drop', e=>{
+          e.preventDefault(); item.classList.remove('drag-over');
+          const dropIdx = parseInt(item.dataset.pos);
+          const temp = gameStepOrder[dragIdx];
+          gameStepOrder[dragIdx] = gameStepOrder[dropIdx];
+          gameStepOrder[dropIdx] = temp;
+          renderGameSort(container, level);
+        });
+      });
+    }
+
+    function checkGameAnswer(){
+      const level = gameLevels[gameLevel-1];
+      const el = document.getElementById('gameResult');
+      let correct = false;
+
+      if(level.type === 'sort'){
+        const selectedOrder = gameStepOrder.map(idx=>level.steps[idx]);
+        correct = JSON.stringify(selectedOrder) === JSON.stringify(level.correctOrder);
+      }else if(level.type === 'choice'){
+        const sel = document.querySelector('input[name="gameChoice"]:checked');
+        if(!sel){ el.innerHTML = '<span class="text-orange-600">Pilih jawaban terlebih dahulu.</span>'; return; }
+        correct = parseInt(sel.value) === level.correctIndex;
+      }else{
+        const input = document.getElementById('gameCipherInput').value.trim();
+        correct = input.toUpperCase() === level.correct.toUpperCase();
+      }
+
+      if(correct){
+        gameScore += 25;
+        el.innerHTML = '🎉 <span class="text-green-600 bounce">Benar! +25 poin</span>';
+        document.getElementById('gameScore').textContent = 'Skor: ' + gameScore;
+        setTimeout(()=>{
+          if(gameLevel < 4){
+            gameLevel++;
+            initGame();
+          }else{
+            showGameComplete();
+          }
+        }, 1200);
+      }else{
+        el.innerHTML = '💪 <span class="text-orange-600">Belum tepat. Coba lagi!</span>';
+      }
+    }
+
+    function showGameComplete(){
+      document.getElementById('gameArea').classList.add('hidden');
+      document.getElementById('gameComplete').classList.remove('hidden');
+      document.getElementById('gameFinalScore').textContent = gameScore + ' / 100';
+      const msg = gameScore >= 70 ? 'Hebat! Kamu sudah memahami jaringan &amp; keamanan.' : 'Terus berlatih—kamu pasti bisa!';
+      document.getElementById('gameMessage').textContent = msg;
+
+      progress.game = true;
+      saveProgress();
+
+      if(gameScore >= 35) addBadge('lan');
+      if(gameScore >= 50) addBadge('internet');
+      if(gameScore >= 60) addBadge('komunikasi');
+      if(gameScore >= 75) addBadge('keamanan');
+      if(gameScore >= 70 && progress.materi && progress.simulasi && progress.kuis) addBadge('master');
+    }
+
+    function resetGame(){
+      gameLevel = 1;
+      gameScore = 0;
+      initGame();
+      document.getElementById('gameComplete').classList.add('hidden');
+      document.getElementById('gameArea').classList.remove('hidden');
+      progress.game = false;
+      saveProgress();
+    }
+
+    function markGameDone(){
+      // jika belum selesai, tetap bisa menandai manual tapi skor mungkin tidak lengkap
+      progress.game = true;
+      saveProgress();
+      showToast('✅ Game ditandai selesai. Lanjut ke Kuis.');
+      navigateTo('kuis');
+    }
+
+    // ============ KUIS ============
+    const kuisQuestions = [
+      // 3 Jaringan Lokal & Internet
+      { q:'Jaringan LAN biasanya memiliki karakteristik berupa...', opts:['Jangkauan global di seluruh dunia','Jangkauan terbatas di area lokal','Menggunakan satelit sebagai media utama','Hanya dapat diakses lewat data seluler'], ans:1 },
+      { q:'Perangkat yang berfungsi menyediakan koneksi Wi‑Fi dalam jaringan adalah...', opts:['Switch','Router','Access Point','Modem'], ans:2 },
+      { q:'Manakah contoh yang termasuk penggunaan internet dalam kehidupan sehari-hari?', opts:['Mengakses printer jaringan di laboratorium','Mengirim email ke alamat di luar sekolah','Mengakses file di komputer teman satu lab','Berbagi file dalam satu ruangan'], ans:1 },
+
+      // 3 Komunikasi Data pada Ponsel
+      { q:'Peran BTS (Base Transceiver Station) adalah...', opts:['Mengatur alamat IP jaringan internet','Menghubungkan sinyal ponsel dengan jaringan operator','Mengenkripsi data pengguna','Menyimpan data di server'], ans:1 },
+      { q:'Teknologi 4G umumnya lebih cocok untuk...', opts:['Video call dan streaming dibanding 3G','Mengirim pesan hanya 1 karakter','Komunikasi satelit jarak dekat','Mengganti kabel LAN'], ans:0 },
+      { q:'Berbagi koneksi internet dari ponsel ke perangkat lain disebut...', opts:['Tethering','Indexing','Routing','Pairing'], ans:0 },
+
+      // 3 Keamanan Data & Enkripsi
+      { q:'Phishing biasanya bertujuan untuk...', opts:['Mempercepat jaringan','Mencuri data kredensial pengguna','Meningkatkan kapasitas RAM','Memperbaiki sinyal Wi‑Fi'], ans:1 },
+      { q:'Enkripsi berfungsi untuk...', opts:['Menyimpan password di server','Mengubah data agar tidak mudah dibaca tanpa kunci','Menghapus informasi dari pesan','Menambah ukuran file tanpa alasan'], ans:1 },
+      { q:'ROT13 adalah variasi Caesar Cipher dengan pergeseran huruf sebesar...', opts:['3','7','13','26'], ans:2 },
+
+      // 1 Studi Kasus
+      { q:'Sebuah siswa ingin bermain game online dengan respon cepat. Jaringan seluler mana yang paling tepat dipilih dibanding 3G/4G?', opts:['3G','4G','5G','Internet publik tanpa data'], ans:2 }
+    ];
+
+    function validateKuisIdentity(){
+      const nama = document.getElementById('namaSiswa').value.trim();
+      const kelas = document.getElementById('kelasSiswa').value;
+      document.getElementById('namaError').classList.toggle('hidden', nama.length > 0);
+      document.getElementById('kelasError').classList.toggle('hidden', kelas.length > 0);
+      document.getElementById('mulaiKuisBtn').disabled = !(nama && kelas);
+    }
+
+    document.getElementById('namaSiswa').addEventListener('input', validateKuisIdentity);
+    document.getElementById('kelasSiswa').addEventListener('change', validateKuisIdentity);
+
+    function startKuis(){
+      const nama = document.getElementById('namaSiswa').value.trim();
+      const kelas = document.getElementById('kelasSiswa').value;
+      if(!nama){ document.getElementById('namaError').classList.remove('hidden'); return; }
+      if(!kelas){ document.getElementById('kelasError').classList.remove('hidden'); return; }
+
+      document.getElementById('kuisIdentity').classList.add('hidden');
+      document.getElementById('kuisArea').classList.remove('hidden');
+      kuisCurrentQ = 0;
+      kuisAnswers = new Array(10).fill(null);
+      renderQuestion();
+      document.getElementById('kuisResult').classList.add('hidden');
+    }
+
+    function renderQuestion(){
+      const q = kuisQuestions[kuisCurrentQ];
+      document.getElementById('kuisNum').textContent = kuisCurrentQ + 1;
+      document.getElementById('kuisProgress').style.width = ((kuisCurrentQ + 1) * 10) + '%';
+      document.getElementById('kuisQuestion').innerHTML = `<p class="font-medium text-gray-800">${kuisCurrentQ+1}. ${q.q}</p>`;
+      document.getElementById('kuisOptions').innerHTML = q.opts.map((opt,i)=>`
+        <label class="flex items-start gap-3 p-3 bg-gray-50 rounded-lg cursor-pointer hover:bg-blue-50 border-2 ${kuisAnswers[kuisCurrentQ]===i ? 'border-purple-500 bg-purple-50' : 'border-transparent'}">
+          <input type="radio" name="kuisAns" value="${i}" ${kuisAnswers[kuisCurrentQ]===i ? 'checked' : ''} onchange="kuisAnswers[${kuisCurrentQ}] = ${i};renderQuestion();" class="mt-1">
+          <span class="text-sm">${opt}</span>
+        </label>
+      `).join('');
+
+      document.getElementById('prevBtn').disabled = kuisCurrentQ === 0;
+      document.getElementById('nextBtn').textContent = kuisCurrentQ === 9 ? 'Selesai ✓' : 'Selanjutnya →';
+    }
+
+    function nextQuestion(){
+      if(kuisCurrentQ === 9){ finishKuis(); return; }
+      kuisCurrentQ++;
+      renderQuestion();
+    }
+
+    function prevQuestion(){
+      if(kuisCurrentQ > 0){ kuisCurrentQ--; renderQuestion(); }
+    }
+
+    function finishKuis(){
+      let correct = 0;
+      kuisQuestions.forEach((q,i)=>{ if(kuisAnswers[i] === q.ans) correct++; });
+      const wrong = 10 - correct;
+      const score = correct * 10; // 0-100
+      const pct = score;
+
+      let cat = 'Perlu Belajar Lagi';
+      if(score >= 90) cat = 'Sangat Baik 🌟';
+      else if(score >= 80) cat = 'Baik 👍';
+      else if(score >= 70) cat = 'Cukup 👌';
+
+      document.getElementById('kuisArea').classList.add('hidden');
+      document.getElementById('kuisResult').classList.remove('hidden');
+
+      document.getElementById('kuisResultName').textContent = document.getElementById('namaSiswa').value + ' - ' + document.getElementById('kelasSiswa').value;
+      document.getElementById('kuisResultScore').textContent = score + '/100';
+      document.getElementById('kuisResultCategory').textContent = cat;
+      document.getElementById('kuisCorrect').textContent = correct;
+      document.getElementById('kuisWrong').textContent = wrong;
+      document.getElementById('kuisPercent').textContent = pct + '%';
+      document.getElementById('kuisResultIcon').textContent = score >= 70 ? '🎉' : '📚';
+
+      const nama = document.getElementById('namaSiswa').value.trim();
+      const kelas = document.getElementById('kelasSiswa').value;
+      const selesaiTanggal = new Date().toISOString();
+
+      const kuisEntry = {
+        nama_siswa: nama,
+        kelas,
+        nilai_kuis: score,
+        jawaban_benar: correct,
+        jawaban_salah: wrong,
+        persentase_nilai: pct,
+        tanggal_waktu: selesaiTanggal
+      };
+
+      progress.kuis = true;
+      saveProgress();
+
+      // simpan lokal untuk rekap/CSV
+      const stored = JSON.parse(localStorage.getItem('jki_kuis_data') || '[]');
+      stored.push(kuisEntry);
+      localStorage.setItem('jki_kuis_data', JSON.stringify(stored));
+
+      if(score >= 70){
+        triggerConfetti();
+        addBadge('master');
+        addBadge('internet');
+        showCertificate(nama, kelas, score);
+      }
+
+      // Simpan ke Canva Sheet (placeholder via Netlify Forms / Apps Script)
+      // Untuk kebutuhan nyata, Anda perlu mengisi APPS_SCRIPT_URL atau konfig Netlify.
+      const statusEl = document.getElementById('kuisSaveStatus');
+      statusEl.textContent = '⏳ Menyimpan hasil...';
+
+      const sendToNetlify = async ()=>{
+        try{
+          const params = new URLSearchParams({
+            'form-name':'kuis-hasil',
+            'nama_siswa': kuisEntry.nama_siswa,
+            'kelas': kuisEntry.kelas,
+            'nilai_kuis': kuisEntry.nilai_kuis,
+            'jawaban_benar': kuisEntry.jawaban_benar,
+            'jawaban_salah': kuisEntry.jawaban_salah,
+            'persentase_nilai': kuisEntry.persentase_nilai,
+            'tanggal_waktu': kuisEntry.tanggal_waktu,
+            'bot-field': ''
+          });
+          const res = await fetch('/', { method:'POST', headers:{'Content-Type':'application/x-www-form-urlencoded'}, body: params.toString() });
+          return res && res.ok;
+        }catch{ return false; }
+      };
+
+      (async ()=>{
+        const ok = await sendToNetlify();
+        if(ok){
+          statusEl.innerHTML = `✅ Hasil tersimpan. <button onclick="downloadKuisCSV()" class="ml-2 underline text-blue-600 text-xs">📥 Unduh CSV</button>`;
+        }else{
+          statusEl.innerHTML = `✅ Tersimpan lokal. <button onclick="downloadKuisCSV()" class="ml-2 underline text-blue-600 text-xs">📥 Unduh CSV</button>`;
+        }
+
+        if(APPS_SCRIPT_URL){
+          try{
+            await fetch(APPS_SCRIPT_URL,{ method:'POST', body: JSON.stringify({ type:'kuis', ...kuisEntry }) });
+          }catch{}
+        }
+      })();
+    }
+
+    function resetKuis(){
+      document.getElementById('kuisResult').classList.add('hidden');
+      document.getElementById('kuisIdentity').classList.remove('hidden');
+      document.getElementById('kuisArea').classList.add('hidden');
+      kuisAnswers = new Array(10).fill(null);
+      kuisCurrentQ = 0;
+      document.getElementById('kuisSaveStatus').textContent = '';
+      validateKuisIdentity();
+    }
+
+    function showCertificate(name, kelas, score){
+      const area = document.getElementById('certificateArea');
+      area.classList.remove('hidden');
+      const tanggal = new Date().toLocaleString('id-ID');
+      area.innerHTML = `
+        <div class="border-4 border-double border-primary-600 rounded-xl p-6 bg-gradient-to-br from-blue-50 to-green-50 max-w-md mx-auto">
+          <p class="text-xs text-gray-500 uppercase tracking-wider">Sertifikat Digital</p>
+          <h4 class="text-lg font-bold text-primary-700 mt-2">🏅 Sertifikat Kelulusan</h4>
+          <p class="text-sm text-gray-600 mt-2">Diberikan kepada:</p>
+          <p class="text-lg font-bold text-gray-800">${name}</p>
+          <p class="text-sm text-gray-600 mt-1">Kelas: <strong>${kelas}</strong></p>
+          <p class="text-sm text-gray-600 mt-2">Telah menyelesaikan Kuis Jaringan Komputer &amp; Internet</p>
+          <p class="text-sm text-gray-600">dengan nilai <strong>${score}/100</strong></p>
+          <p class="text-xs text-gray-400 mt-4">Tanggal Penyelesaian: ${tanggal}</p>
+          <p class="text-xs text-gray-400 mt-1">Ridwan Na'im, S.Kom. • 2026</p>
+        </div>
+      `;
+    }
+
+    // ============ REFLEKSI ============
+    async function saveRefleksi(){
+      const nama = document.getElementById('refleksiNama').value.trim();
+      const kelas = document.getElementById('refleksiKelas').value;
+      const r1 = document.getElementById('refleksi1').value.trim();
+      const r2 = document.getElementById('refleksi2').value.trim();
+      const r3 = document.getElementById('refleksi3').value.trim();
+      const r4 = document.getElementById('refleksi4')?.value.trim();
+
+      const namaErr = document.getElementById('refleksiNamaError');
+      const kelasErr = document.getElementById('refleksiKelasError');
+      namaErr.classList.toggle('hidden', nama.length>0);
+      kelasErr.classList.toggle('hidden', kelas.length>0);
+      if(!nama || !kelas) return;
+
+      const statusEl = document.getElementById('refleksiStatus');
+      statusEl.innerHTML = '<span class="text-gray-500">⏳ Menyimpan refleksi...</span>';
+
+      const entry = { nama, kelas, r1, r2, r3, r4, tanggal_waktu: new Date().toISOString() };
+      localStorage.setItem('jki_refleksi', JSON.stringify(entry));
+      progress.refleksi = true;
+      saveProgress();
+
+      // Netlify forms expects refleksi_1..3 only; tetap kirim r1..3
+      try{
+        const params = new URLSearchParams({
+          'form-name':'refleksi-siswa',
+          'nama_siswa': nama,
+          'kelas': kelas,
+          'refleksi_1': r1,
+          'refleksi_2': r2,
+          'refleksi_3': r3,
+          'tanggal_waktu': entry.tanggal_waktu,
+          'bot-field': ''
+        });
+        await fetch('/',{ method:'POST', headers:{'Content-Type':'application/x-www-form-urlencoded'}, body: params.toString() });
+      }catch{}
+
+      if(APPS_SCRIPT_URL){
+        try{
+          await fetch(APPS_SCRIPT_URL,{ method:'POST', body: JSON.stringify({ type:'refleksi', ...entry }) });
+          statusEl.innerHTML = '<span class="text-green-600">✅ Refleksi berhasil disimpan ke Google Sheets!</span>';
+        }catch{
+          statusEl.innerHTML = '<span class="text-green-600">✅ Refleksi tersimpan lokal. (Cek koneksi ke Google Sheets)</span>';
+        }
+      }else{
+        statusEl.innerHTML = '<span class="text-green-600">✅ Refleksi berhasil disimpan!</span>';
+      }
+    }
+
+    // ============ TOAST / CONFETTI / CSV ============
+    function showToast(msg){
+      const toast = document.createElement('div');
+      toast.className = 'fixed bottom-4 right-4 bg-gray-800 text-white px-4 py-3 rounded-lg shadow-lg text-sm z-50 fade-in';
+      toast.textContent = msg;
+      document.body.appendChild(toast);
+      setTimeout(()=>toast.remove(),3000);
+    }
+
+    function triggerConfetti(){
+      const colors = ['#3b82f6','#10b981','#f59e0b','#ef4444','#8b5cf6','#ec4899'];
+      for(let i=0;i<60;i++){
+        const piece = document.createElement('div');
+        piece.className = 'confetti-piece';
+        piece.style.left = Math.random()*100 + '%';
+        piece.style.backgroundColor = colors[Math.floor(Math.random()*colors.length)];
+        piece.style.animationDelay = Math.random()*2 + 's';
+        piece.style.borderRadius = Math.random()>0.5 ? '50%' : '0';
+        document.body.appendChild(piece);
+        setTimeout(()=>piece.remove(),5000);
+      }
+    }
+
+    function downloadKuisCSV(){
+      const data = JSON.parse(localStorage.getItem('jki_kuis_data') || '[]');
+      if(!data.length){ showToast('Belum ada data kuis tersimpan.'); return; }
+      const header = ['Nama Siswa','Kelas','Nilai','Benar','Salah','Persentase','Tanggal & Waktu'];
+      const rows = data.map(d => [
+        `"${d.nama_siswa}"`, `"${d.kelas}"`,
+        d.nilai_kuis, d.jawaban_benar, d.jawaban_salah,
+        d.persentase_nilai + '%',
+        `"${new Date(d.tanggal_waktu).toLocaleString('id-ID')}"`
+      ]);
+      const csv = [header, ...rows].map(r=>r.join(',')).join('\n');
+      const blob = new Blob(['\uFEFF' + csv], { type:'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'rekap-kuis-jki-' + new Date().toISOString().slice(0,10) + '.csv';
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    // ============ Game done / init marks ============
+
+    // ============ Init ============
+    document.addEventListener('DOMContentLoaded', ()=>{
+      loadProgress();
+      initGame();
+      validateKuisIdentity();
+      lucide.createIcons();
+      // init simulasi structures
+      initSimNet();
+
+      // set initial materi content
+      showMateri(1);
+      setupDropZones();
+      playDataJourney();
+      resetDataJourney();
+      resetJourneyAnim();
+      resetCipher();
+      resetSimCipher();
+
+      // ensure security activity prepared when showing materi 3
+      initSecurityTrueFalseActivity();
+
+      // Avoid double init drop zone: reattach
+      resetLANInternetActivity();
+    });
+
+    // Small fixes: cipher reset uses initCipherUI; ensure elements exist
+    function initCipherUI(){
+      // placeholder overwritten above (kept for safety)
+    }
+  </script>
+ </body>
+</html>
+
