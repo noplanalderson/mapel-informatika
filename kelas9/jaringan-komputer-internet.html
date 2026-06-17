@@ -690,7 +690,7 @@
     // ============================================================
     // KONFIGURASI (opsional) Google Apps Script URL
     // ============================================================
-    const APPS_SCRIPT_URL = '';
+    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzE5SIYfnILH6UfmyCeAo9cEK4zywXVum3BsQvutkui6p5otUqKsZoF1LBJMrr2t0kxWQ/exec';
 
     // ============ STATE ============
     let currentPage = 'beranda';
@@ -891,25 +891,35 @@
       const lanDrop = document.getElementById('lanDrop');
       const internetDrop = document.getElementById('internetDrop');
       const zones = [lanDrop, internetDrop];
-      const expected = { lanDrop:'LAN', internetDrop:'Internet' };
 
       zones.forEach(zone=>{
         if(!zone) return;
+        if(zone.dataset.dndBound === '1') return; // avoid duplicate listeners
+        zone.dataset.dndBound = '1';
+
         zone.addEventListener('dragover', (e)=>{ e.preventDefault(); zone.classList.add('drag-over'); });
         zone.addEventListener('dragleave', ()=>{ zone.classList.remove('drag-over'); });
         zone.addEventListener('drop', (e)=>{
           e.preventDefault();
           zone.classList.remove('drag-over');
           const idx = parseInt(e.dataTransfer.getData('text/plain'));
+          if(Number.isNaN(idx)) return;
           const item = lanInternetCurrentBank[idx];
           if(!item) return;
+
+          // prevent duplicate chip per item
+          const already = zone.querySelector(`[data-item-idx="${idx}"]`);
+          if(already) return;
+
           const chip = document.createElement('div');
           chip.className = 'bg-white rounded-lg px-3 py-2 border border-gray-200 text-sm';
           chip.textContent = item.text;
           chip.setAttribute('data-cat', item.cat);
           chip.setAttribute('data-text', item.text);
+          chip.setAttribute('data-item-idx', idx);
           zone.appendChild(chip);
-          // remove from bank visually
+
+          // remove from bank visually (and allow re-drop only after reset)
           const bankItem = document.querySelector(`.drag-item[data-item-idx="${idx}"]`);
           if(bankItem) bankItem.remove();
         });
@@ -1212,19 +1222,34 @@
         it.addEventListener('dragend', ()=>{ it.style.opacity='1'; });
       });
 
-      area.addEventListener('dragover',(e)=>{ e.preventDefault(); area.classList.add('drag-over'); });
-      area.addEventListener('dragleave',()=>area.classList.remove('drag-over'));
-      area.addEventListener('drop',(e)=>{
-        e.preventDefault(); area.classList.remove('drag-over');
-        const item = e.dataTransfer.getData('text/plain');
-        const chip = document.createElement('div');
-        chip.className = 'bg-white rounded-lg p-3 border border-blue-200 flex items-center justify-between';
-        chip.innerHTML = `<span class="text-sm font-semibold text-gray-800">${item}</span><span class="text-xs text-gray-500">Urutan</span>`;
-        area.appendChild(chip);
-        // remove from bank if exists
-        const bankItem = document.querySelector(`.drag-item[data-item="${item}"]`);
-        if(bankItem) bankItem.remove();
-      });
+      // Bind listener hanya sekali per initSimNet agar tidak menduplikasi saat reset
+      if(!area.dataset.dndBound){
+        area.dataset.dndBound = '1';
+
+        area.addEventListener('dragover',(e)=>{ e.preventDefault(); area.classList.add('drag-over'); });
+        area.addEventListener('dragleave',()=>area.classList.remove('drag-over'));
+        area.addEventListener('drop',(e)=>{
+          e.preventDefault();
+          area.classList.remove('drag-over');
+
+          const item = e.dataTransfer.getData('text/plain');
+          if(!item) return;
+
+          // Cegah duplikasi chip untuk item yang sama
+          const existing = area.querySelector(`[data-sim-item="${item}"]`);
+          if(existing) return;
+
+          const chip = document.createElement('div');
+          chip.className = 'bg-white rounded-lg p-3 border border-blue-200 flex items-center justify-between';
+          chip.setAttribute('data-sim-item', item);
+          chip.innerHTML = `<span class="text-sm font-semibold text-gray-800">${item}</span><span class="text-xs text-gray-500">Urutan</span>`;
+          area.appendChild(chip);
+
+          // remove from bank if exists
+          const bankItem = document.querySelector(`.drag-item[data-item="${item}"]`);
+          if(bankItem) bankItem.remove();
+        });
+      }
     }
 
     function resetSimNet(){
